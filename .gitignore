@@ -35,7 +35,7 @@ yarn-error.log
 
 # example
 /quick-start
-/example_dist
+/dist
 /example
 
 # tests

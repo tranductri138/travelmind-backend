@@ -1,0 +1,16 @@
+[
+  {
+    "email": "admin@travelmind.com",
+    "password": "Admin123!",
+    "firstName": "Admin",
+    "lastName": "TravelMind",
+    "role": "ADMIN"
+  },
+  {
+    "email": "user@travelmind.com",
+    "password": "User123!",
+    "firstName": "Demo",
+    "lastName": "User",
+    "role": "USER"
+  }
+]

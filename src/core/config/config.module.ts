@@ -1,0 +1,48 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import * as Joi from 'joi';
+import { appConfig } from './app.config.js';
+import { databaseConfig } from './database.config.js';
+import { redisConfig } from './redis.config.js';
+import { jwtConfig } from './jwt.config.js';
+import { rabbitmqConfig } from './rabbitmq.config.js';
+import { stripeConfig } from './stripe.config.js';
+import { elkConfig } from './elk.config.js';
+
+@Module({
+  imports: [
+    NestConfigModule.forRoot({
+      isGlobal: true,
+      load: [
+        appConfig,
+        databaseConfig,
+        redisConfig,
+        jwtConfig,
+        rabbitmqConfig,
+        stripeConfig,
+        elkConfig,
+      ],
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
+        PORT: Joi.number().default(3000),
+        DATABASE_URL: Joi.string().required(),
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
+        JWT_ACCESS_SECRET: Joi.string().required(),
+        JWT_ACCESS_EXPIRY: Joi.string().default('15m'),
+        JWT_REFRESH_SECRET: Joi.string().required(),
+        JWT_REFRESH_EXPIRY: Joi.string().default('7d'),
+        RABBITMQ_URL: Joi.string().default('amqp://guest:guest@localhost:5672'),
+        STRIPE_SECRET_KEY: Joi.string().default(''),
+        STRIPE_WEBHOOK_SECRET: Joi.string().default(''),
+        ELASTICSEARCH_URL: Joi.string().default('http://localhost:9200'),
+        LOGSTASH_HOST: Joi.string().default('localhost'),
+        LOGSTASH_PORT: Joi.number().default(5044),
+      }),
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
+    }),
+  ],
+})
+export class AppConfigModule {}

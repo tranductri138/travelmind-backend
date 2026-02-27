@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Grand Palace Hotel",
+    "slug": "grand-palace-hotel",
+    "description": "A luxurious 5-star hotel",
+    "address": "123 Nguyen Hue Boulevard",
+    "city": "Ho Chi Minh City",
+    "country": "Vietnam",
+    "stars": 5,
+    "amenities": ["wifi", "pool", "gym", "spa"]
+  },
+  {
+    "name": "Seaside Resort",
+    "slug": "seaside-resort",
+    "description": "Beautiful beachfront resort",
+    "address": "456 Beach Road",
+    "city": "Da Nang",
+    "country": "Vietnam",
+    "stars": 4,
+    "amenities": ["wifi", "pool", "beach"]
+  }
+]
