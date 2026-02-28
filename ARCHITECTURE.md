@@ -77,7 +77,7 @@ src/
 ├── main.ts              ← Entry point: tao app, cau hinh, listen port
 ├── app.module.ts        ← Root module: import tat ca modules
 ├── core/                ← Ha tang dung chung (global)
-│   ├── config/          ← 8 file config: app, database, jwt, redis, rabbitmq, elk, ai, stripe(legacy)
+│   ├── config/          ← 7 file config: app, database, jwt, redis, rabbitmq, elk, ai
 │   ├── database/        ← PrismaService (ORM), PrismaHealthIndicator
 │   ├── cache/           ← CacheService (Redis backend)
 │   ├── logger/          ← LoggerService (JSON structured logs)
@@ -490,7 +490,6 @@ export class CoreModule {}
 | `jwt.config.ts` | `jwt` | `config.get('jwt.accessSecret')` |
 | `redis.config.ts` | `redis` | `config.get('redis.host')` → localhost |
 | `rabbitmq.config.ts` | `rabbitmq` | `config.get('rabbitmq.url')` |
-| `stripe.config.ts` | `stripe` | (legacy — LianLian Bank khong can key) |
 | `elk.config.ts` | `elk` | `config.get('elk.url')` |
 | `ai.config.ts` | `ai` | `config.get('ai.serviceUrl')` → http://localhost:8000 |
 

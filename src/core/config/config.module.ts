@@ -6,7 +6,6 @@ import { databaseConfig } from './database.config.js';
 import { redisConfig } from './redis.config.js';
 import { jwtConfig } from './jwt.config.js';
 import { rabbitmqConfig } from './rabbitmq.config.js';
-import { stripeConfig } from './stripe.config.js';
 import { elkConfig } from './elk.config.js';
 import { aiConfig } from './ai.config.js';
 
@@ -20,7 +19,6 @@ import { aiConfig } from './ai.config.js';
         redisConfig,
         jwtConfig,
         rabbitmqConfig,
-        stripeConfig,
         elkConfig,
         aiConfig,
       ],
