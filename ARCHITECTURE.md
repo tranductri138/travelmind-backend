@@ -55,8 +55,8 @@ TravelMind Backend la **NestJS API server**, chiu trach nhiem:
 │  │  │ Prisma   │  │ Interceptors   │  │  Booking Payment │   │  │
 │  │  │ Cache    │  │ Filters        │  │  Review  Search  │   │  │
 │  │  │ Logger   │  │ Decorators     │  │  Notification    │   │  │
-│  │  │ Health   │  │ Middleware     │  │  Crawler         │   │  │
-│  │  │ RabbitMQ │  │ Pipes          │  │                  │   │  │
+│  │  │ Health   │  │ Middleware     │  │  Crawler  Chat   │   │  │
+│  │  │ RabbitMQ │  │ Pipes          │  │  Upload          │   │  │
 │  │  └──────────┘  └────────────────┘  └──────────────────┘   │  │
 │  └────────────────────────────────────────────────────────────┘  │
 │         │              │              │           │               │
@@ -95,7 +95,7 @@ src/
 │   ├── dto/             ← Pagination, ApiResponse
 │   ├── utils/           ← Hash, Slug, Date
 │   └── interfaces/      ← BaseService, Pagination types
-└── modules/             ← Business logic (10 feature modules)
+└── modules/             ← Business logic (12 feature modules)
     ├── auth/            ← Register, login, JWT, Passport strategies
     ├── user/            ← Profile CRUD
     ├── hotel/           ← Hotel CRUD + search + nearby
@@ -106,7 +106,8 @@ src/
     ├── search/          ← Elasticsearch + AI semantic proxy
     ├── notification/    ← Email + push (template-based)
     ├── crawler/         ← Trigger web scraping jobs
-    └── chat/            ← AI Chat (WebSocket + REST)
+    ├── chat/            ← AI Chat (WebSocket + REST)
+    └── upload/          ← Hotel image upload (Multer)
 ```
 
 **Pattern: FEATURE-MODULE** (khong phai MVC)

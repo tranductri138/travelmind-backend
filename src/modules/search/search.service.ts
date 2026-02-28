@@ -175,6 +175,62 @@ export class SearchService {
       });
   }
 
+  async unifiedSearch(dto: SearchQueryDto) {
+    const { q, page = 1, limit = 10 } = dto;
+
+    const [keywordResult, semanticResult] = await Promise.allSettled([
+      this.searchHotels(dto),
+      this.semanticSearch({
+        query: q,
+        city: dto.city,
+        country: dto.country,
+        limit,
+      }),
+    ]);
+
+    const keywordData =
+      keywordResult.status === 'fulfilled' ? keywordResult.value.data : [];
+    const semanticData =
+      semanticResult.status === 'fulfilled'
+        ? Array.isArray(semanticResult.value)
+          ? semanticResult.value
+          : ((semanticResult.value as any).data ?? [])
+        : [];
+
+    if (keywordResult.status === 'rejected') {
+      this.logger.warn(`Keyword search failed: ${keywordResult.reason}`);
+    }
+    if (semanticResult.status === 'rejected') {
+      this.logger.warn(`Semantic search failed: ${semanticResult.reason}`);
+    }
+
+    // Merge: semantic first, then keyword, deduplicate by hotel.id
+    const seen = new Set<string>();
+    const merged: typeof keywordData = [];
+
+    for (const item of semanticData) {
+      if (!seen.has(item.hotel.id)) {
+        seen.add(item.hotel.id);
+        merged.push(item);
+      }
+    }
+    for (const item of keywordData) {
+      if (!seen.has(item.hotel.id)) {
+        seen.add(item.hotel.id);
+        merged.push(item);
+      }
+    }
+
+    const total = merged.length;
+    const totalPages = Math.ceil(total / limit);
+    const paged = merged.slice((page - 1) * limit, page * limit);
+
+    return {
+      data: paged,
+      meta: { total, page, limit, totalPages },
+    };
+  }
+
   async semanticSearch(dto: SemanticSearchDto) {
     try {
       const { data: aiResponse } = await firstValueFrom(

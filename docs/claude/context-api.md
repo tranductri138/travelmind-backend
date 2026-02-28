@@ -1,6 +1,6 @@
 # Context: API — Endpoints & DTOs
 
-## 38 REST Endpoints + WebSocket `/chat`
+## 39 REST Endpoints + WebSocket `/chat`
 
 ```
 Auth (4):
@@ -22,11 +22,11 @@ Hotels (7):
   DELETE /api/hotels/:id/permanent  ADMIN     Hard delete
 
 Rooms (5):
-  GET    /api/hotels/:id/rooms                        @Public
-  GET    /api/hotels/:id/rooms/:rid/availability      @Public
-  POST   /api/rooms                                   ADMIN/OWNER
-  DELETE /api/rooms/:id                               ADMIN/OWNER  Soft delete
-  DELETE /api/rooms/:id/permanent                     ADMIN        Hard delete
+  GET    /api/hotels/:hotelId/rooms                        @Public
+  GET    /api/hotels/:hotelId/rooms/:roomId/availability   @Public
+  POST   /api/hotels/:hotelId/rooms                        ADMIN/OWNER
+  DELETE /api/hotels/:hotelId/rooms/:roomId                ADMIN/OWNER  Soft delete
+  DELETE /api/hotels/:hotelId/rooms/:roomId/permanent      ADMIN        Hard delete
 
 Bookings (5):
   POST   /api/bookings              JWT   Saga: validate→book→payment→block dates
@@ -45,13 +45,16 @@ Reviews (3):
   DELETE /api/reviews/:id           JWT    Owner hoặc ADMIN
 
 Search (2):
-  GET  /api/search                  @Public  Full-text (Elasticsearch)
+  GET  /api/search                  @Public  Unified (keyword + semantic, fallback PostgreSQL)
   POST /api/search/semantic         @Public  Semantic (proxy → AI → Qdrant)
 
 Crawler (3):
   POST /api/crawler/trigger         ADMIN   Trigger URL scraping → tạo hotel
   GET  /api/crawler/jobs            ADMIN   Danh sách jobs (paginated)
   GET  /api/crawler/jobs/:id        ADMIN   Chi tiết 1 job
+
+Upload (1):
+  POST /api/upload/hotel-images     ADMIN/OWNER  Upload images (max 10, 5MB/file)
 
 Chat (3):
   GET    /api/chat/conversations     JWT
@@ -76,3 +79,224 @@ Health (1):
 ```
 
 SerializeInterceptor tự loại bỏ `password`, `refreshToken` khỏi response.
+
+## Curl Examples
+
+Base URL: `http://localhost:3000`
+
+### Auth
+
+```bash
+# Register
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!","name":"Test User"}'
+
+# Login → trả accessToken + refreshToken
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@travelmind.com","password":"Admin123!"}'
+
+# Refresh token
+curl -X POST http://localhost:3000/api/auth/refresh \
+  -H "Authorization: Bearer <refreshToken>"
+
+# Logout
+curl -X POST http://localhost:3000/api/auth/logout \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Users
+
+```bash
+# Get profile
+curl http://localhost:3000/api/users/me \
+  -H "Authorization: Bearer <accessToken>"
+
+# Update profile
+curl -X PATCH http://localhost:3000/api/users/me \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Name","phone":"0123456789"}'
+
+# Delete account
+curl -X DELETE http://localhost:3000/api/users/me \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Hotels
+
+```bash
+# List hotels (public)
+curl "http://localhost:3000/api/hotels?page=1&limit=10"
+
+# Search nearby
+curl "http://localhost:3000/api/hotels/nearby?latitude=16.07&longitude=108.24&radius=10"
+
+# Get hotel detail
+curl http://localhost:3000/api/hotels/<hotelId>
+
+# Create hotel (admin)
+curl -X POST http://localhost:3000/api/hotels \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Hotel","address":"123 Street","city":"Đà Nẵng","country":"Vietnam","stars":4}'
+
+# Update hotel (admin/owner)
+curl -X PATCH http://localhost:3000/api/hotels/<hotelId> \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"rating":4.5}'
+
+# Soft delete
+curl -X DELETE http://localhost:3000/api/hotels/<hotelId> \
+  -H "Authorization: Bearer <accessToken>"
+
+# Hard delete
+curl -X DELETE http://localhost:3000/api/hotels/<hotelId>/permanent \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Rooms
+
+```bash
+# List rooms for hotel (public)
+curl http://localhost:3000/api/hotels/<hotelId>/rooms
+
+# Check availability (public)
+curl "http://localhost:3000/api/hotels/<hotelId>/rooms/<roomId>/availability?checkIn=2026-03-10&checkOut=2026-03-15"
+
+# Create room (admin/owner)
+curl -X POST http://localhost:3000/api/hotels/<hotelId>/rooms \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Deluxe Room","type":"deluxe","price":150,"maxGuests":2,"amenities":["wifi","tv"]}'
+
+# Soft delete room
+curl -X DELETE http://localhost:3000/api/hotels/<hotelId>/rooms/<roomId> \
+  -H "Authorization: Bearer <accessToken>"
+
+# Hard delete room (admin)
+curl -X DELETE http://localhost:3000/api/hotels/<hotelId>/rooms/<roomId>/permanent \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Bookings
+
+```bash
+# Create booking
+curl -X POST http://localhost:3000/api/bookings \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"roomId":"<roomId>","checkIn":"2026-03-10","checkOut":"2026-03-15","guests":2}'
+
+# List my bookings
+curl "http://localhost:3000/api/bookings?page=1&limit=10" \
+  -H "Authorization: Bearer <accessToken>"
+
+# Get booking detail
+curl http://localhost:3000/api/bookings/<bookingId> \
+  -H "Authorization: Bearer <accessToken>"
+
+# Cancel booking
+curl -X PATCH http://localhost:3000/api/bookings/<bookingId>/cancel \
+  -H "Authorization: Bearer <accessToken>"
+
+# Delete booking (PENDING only)
+curl -X DELETE http://localhost:3000/api/bookings/<bookingId> \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Payments
+
+```bash
+# Initiate payment
+curl -X POST http://localhost:3000/api/payments/initiate/<bookingId> \
+  -H "Authorization: Bearer <accessToken>"
+
+# Confirm payment
+curl -X POST http://localhost:3000/api/payments/confirm/<transactionId> \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Reviews
+
+```bash
+# List reviews for hotel (public)
+curl "http://localhost:3000/api/reviews?hotelId=<hotelId>&page=1&limit=10"
+
+# Create review
+curl -X POST http://localhost:3000/api/reviews \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"hotelId":"<hotelId>","rating":5,"title":"Great!","comment":"Loved it"}'
+
+# Delete review
+curl -X DELETE http://localhost:3000/api/reviews/<reviewId> \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Search
+
+```bash
+# Unified search — keyword + semantic, fallback PostgreSQL khi ES down
+curl "http://localhost:3000/api/search?q=biển+Đà+Nẵng&page=1&limit=10"
+
+# With city/country filter
+curl "http://localhost:3000/api/search?q=hotel&city=Đà+Nẵng&country=Vietnam"
+
+# Semantic search (POST, qua AI service)
+curl -X POST http://localhost:3000/api/search/semantic \
+  -H "Content-Type: application/json" \
+  -d '{"query":"khách sạn gần biển có hồ bơi","city":"Đà Nẵng","limit":5}'
+```
+
+### Crawler
+
+```bash
+# Trigger crawl (admin)
+curl -X POST http://localhost:3000/api/crawler/trigger \
+  -H "Authorization: Bearer <accessToken>" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/hotel","extractReviews":true}'
+
+# List jobs (admin)
+curl "http://localhost:3000/api/crawler/jobs?page=1&limit=10" \
+  -H "Authorization: Bearer <accessToken>"
+
+# Get job detail (admin)
+curl http://localhost:3000/api/crawler/jobs/<jobId> \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Upload
+
+```bash
+# Upload hotel images (admin/owner, multipart)
+curl -X POST http://localhost:3000/api/upload/hotel-images \
+  -H "Authorization: Bearer <accessToken>" \
+  -F "images=@photo1.jpg" \
+  -F "images=@photo2.jpg"
+```
+
+### Chat
+
+```bash
+# List conversations
+curl http://localhost:3000/api/chat/conversations \
+  -H "Authorization: Bearer <accessToken>"
+
+# Get conversation with messages
+curl http://localhost:3000/api/chat/conversations/<conversationId> \
+  -H "Authorization: Bearer <accessToken>"
+
+# Delete conversation
+curl -X DELETE http://localhost:3000/api/chat/conversations/<conversationId> \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+### Health
+
+```bash
+curl http://localhost:3000/health
+```

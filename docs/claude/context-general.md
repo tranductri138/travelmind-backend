@@ -9,7 +9,7 @@ src/
 ├── core/       # Config, Prisma, Cache, Logger, Health, Queue (RabbitMQ)
 ├── shared/     # Guards, Interceptors, Filters, Decorators, Pipes, Middleware, Utils
 └── modules/    # auth, user, hotel, room, booking, payment, review,
-                # search, notification, crawler, chat  (11 modules)
+                # search, notification, crawler, chat, upload  (12 modules)
                 # Crawler: HTTP → AI /scraping/extract (không dùng RabbitMQ)
 ```
 

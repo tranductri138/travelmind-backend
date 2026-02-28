@@ -12,9 +12,9 @@ export class SearchController {
 
   @Public()
   @Get()
-  @ApiOperation({ summary: 'Full-text search for hotels' })
+  @ApiOperation({ summary: 'Unified search (keyword + semantic) for hotels' })
   async search(@Query() dto: SearchQueryDto) {
-    return this.searchService.searchHotels(dto);
+    return this.searchService.unifiedSearch(dto);
   }
 
   @Public()
