@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsNumber, Min, Max, IsInt, IsArray } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  Min,
+  Max,
+  IsInt,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationQueryDto } from '../../../shared/dto/pagination.dto.js';

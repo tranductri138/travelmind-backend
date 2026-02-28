@@ -18,7 +18,11 @@ export class ReviewRepository {
     const [reviews, total] = await Promise.all([
       this.prisma.review.findMany({
         where,
-        include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } },
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true, avatar: true },
+          },
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -41,7 +45,10 @@ export class ReviewRepository {
     return this.prisma.review.delete({ where: { id } });
   }
 
-  async findByUserAndHotel(userId: string, hotelId: string): Promise<Review | null> {
+  async findByUserAndHotel(
+    userId: string,
+    hotelId: string,
+  ): Promise<Review | null> {
     return this.prisma.review.findUnique({
       where: { userId_hotelId: { userId, hotelId } },
     });

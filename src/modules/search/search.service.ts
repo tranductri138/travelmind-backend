@@ -37,9 +37,7 @@ export class SearchService {
       },
     ];
 
-    const filter: Record<string, unknown>[] = [
-      { term: { isActive: true } },
-    ];
+    const filter: Record<string, unknown>[] = [{ term: { isActive: true } }];
 
     if (city) filter.push({ term: { city } });
     if (country) filter.push({ term: { country } });
@@ -63,7 +61,7 @@ export class SearchService {
       const total =
         typeof result.hits.total === 'number'
           ? result.hits.total
-          : (result.hits.total as { value: number })?.value ?? 0;
+          : ((result.hits.total as { value: number })?.value ?? 0);
 
       return {
         data: hits,
@@ -75,7 +73,9 @@ export class SearchService {
         },
       };
     } catch (error) {
-      this.logger.error(`Search failed: ${error instanceof Error ? error.message : 'Unknown'}`);
+      this.logger.error(
+        `Search failed: ${error instanceof Error ? error.message : 'Unknown'}`,
+      );
       return { data: [], meta: { total: 0, page, limit, totalPages: 0 } };
     }
   }

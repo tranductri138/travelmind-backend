@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatRepository } from './chat.repository.js';
 import { ChatConversation, ChatMessage } from '@prisma/client';
@@ -12,7 +17,10 @@ export class ChatService {
     private readonly chatRepository: ChatRepository,
     private readonly configService: ConfigService,
   ) {
-    this.aiServiceUrl = this.configService.get<string>('ai.serviceUrl', 'http://localhost:8000');
+    this.aiServiceUrl = this.configService.get<string>(
+      'ai.serviceUrl',
+      'http://localhost:8000',
+    );
   }
 
   async getConversations(userId: string): Promise<ChatConversation[]> {
@@ -23,7 +31,8 @@ export class ChatService {
     id: string,
     userId: string,
   ): Promise<ChatConversation & { messages: ChatMessage[] }> {
-    const conversation = await this.chatRepository.findConversationWithMessages(id);
+    const conversation =
+      await this.chatRepository.findConversationWithMessages(id);
     if (!conversation) throw new NotFoundException('Conversation not found');
     if (conversation.userId !== userId) throw new ForbiddenException();
     return conversation;
@@ -45,11 +54,16 @@ export class ChatService {
     // 1. Get or create conversation
     let convId = conversationId;
     if (!convId) {
-      const title = message.length > 50 ? message.slice(0, 50) + '...' : message;
-      const conversation = await this.chatRepository.createConversation(userId, title);
+      const title =
+        message.length > 50 ? message.slice(0, 50) + '...' : message;
+      const conversation = await this.chatRepository.createConversation(
+        userId,
+        title,
+      );
       convId = conversation.id;
     } else {
-      const conversation = await this.chatRepository.findConversationById(convId);
+      const conversation =
+        await this.chatRepository.findConversationById(convId);
       if (!conversation) throw new NotFoundException('Conversation not found');
       if (conversation.userId !== userId) throw new ForbiddenException();
     }
@@ -65,7 +79,8 @@ export class ChatService {
       fullContent = await this.streamFromAI(convId, message, onChunk);
     } catch (error) {
       this.logger.error('AI service error', error);
-      fullContent = 'Sorry, I am unable to process your request right now. Please try again later.';
+      fullContent =
+        'Sorry, I am unable to process your request right now. Please try again later.';
       onChunk(fullContent);
     }
 

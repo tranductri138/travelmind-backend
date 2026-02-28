@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsArray, IsInt, Min, Max, IsEmail, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsArray,
+  IsInt,
+  Min,
+  Max,
+  IsEmail,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateHotelDto {
@@ -6,7 +15,9 @@ export class CreateHotelDto {
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({ example: 'A luxurious hotel in the heart of the city' })
+  @ApiPropertyOptional({
+    example: 'A luxurious hotel in the heart of the city',
+  })
   @IsOptional()
   @IsString()
   description?: string;

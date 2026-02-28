@@ -8,8 +8,14 @@ export class LoggerService implements NestLoggerService {
   private environment: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.serviceName = this.configService.get<string>('app.name', 'travelmind-api');
-    this.environment = this.configService.get<string>('app.nodeEnv', 'development');
+    this.serviceName = this.configService.get<string>(
+      'app.name',
+      'travelmind-api',
+    );
+    this.environment = this.configService.get<string>(
+      'app.nodeEnv',
+      'development',
+    );
   }
 
   setContext(context: string) {
@@ -40,7 +46,11 @@ export class LoggerService implements NestLoggerService {
     this.writeLog('debug', message, context, metadata);
   }
 
-  verbose(message: string, context?: string, metadata?: Record<string, unknown>) {
+  verbose(
+    message: string,
+    context?: string,
+    metadata?: Record<string, unknown>,
+  ) {
     this.writeLog('verbose', message, context, metadata);
   }
 

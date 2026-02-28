@@ -8,9 +8,17 @@ export class EmailConsumer extends BaseConsumer {
     super();
   }
 
-  async handleEmail(data: { to: string; template: string; context: Record<string, unknown> }) {
+  async handleEmail(data: {
+    to: string;
+    template: string;
+    context: Record<string, unknown>;
+  }) {
     return this.handleWithRetry(data, async (msg) => {
-      await this.notificationService.sendEmail(msg.to, msg.template, msg.context);
+      await this.notificationService.sendEmail(
+        msg.to,
+        msg.template,
+        msg.context,
+      );
     });
   }
 }

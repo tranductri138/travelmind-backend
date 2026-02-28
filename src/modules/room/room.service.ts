@@ -48,11 +48,19 @@ export class RoomService {
     return this.roomRepository.checkAvailability(roomId, checkIn, checkOut);
   }
 
-  async blockDates(roomId: string, checkIn: Date, checkOut: Date): Promise<void> {
+  async blockDates(
+    roomId: string,
+    checkIn: Date,
+    checkOut: Date,
+  ): Promise<void> {
     return this.roomRepository.blockDates(roomId, checkIn, checkOut);
   }
 
-  async releaseDates(roomId: string, checkIn: Date, checkOut: Date): Promise<void> {
+  async releaseDates(
+    roomId: string,
+    checkIn: Date,
+    checkOut: Date,
+  ): Promise<void> {
     return this.roomRepository.releaseDates(roomId, checkIn, checkOut);
   }
 }

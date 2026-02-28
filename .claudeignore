@@ -1,5 +1,6 @@
-# Tài liệu cho người đọc — Claude dùng docs/claude/ thay thế
+# Docs chỉ dành cho người đọc — Claude không cần
 ARCHITECTURE.md
+README.md
 
 # Dependencies
 node_modules/
@@ -9,3 +10,8 @@ dist/
 
 # Generated files
 prisma/generated/
+
+# IDE, OS
+.idea/
+.vscode/
+*.DS_Store

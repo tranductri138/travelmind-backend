@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { AuthService } from '../auth.service.js';
 import { PrismaService } from '../../../core/database/prisma.service.js';
 
@@ -53,7 +53,10 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should throw ConflictException if email already exists', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue({ id: '1', email: 'test@test.com' });
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+      });
 
       await expect(
         service.register({

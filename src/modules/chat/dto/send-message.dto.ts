@@ -2,7 +2,9 @@ import { IsString, IsOptional, MaxLength, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SendMessageDto {
-  @ApiPropertyOptional({ description: 'Existing conversation ID (omit to create new)' })
+  @ApiPropertyOptional({
+    description: 'Existing conversation ID (omit to create new)',
+  })
   @IsOptional()
   @IsString()
   conversationId?: string;

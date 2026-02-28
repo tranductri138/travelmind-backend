@@ -19,18 +19,25 @@ export class NotificationService {
       for (const file of files) {
         if (file.endsWith('.hbs')) {
           const name = file.replace('.hbs', '');
-          const content = fs.readFileSync(path.join(templateDir, file), 'utf-8');
+          const content = fs.readFileSync(
+            path.join(templateDir, file),
+            'utf-8',
+          );
           this.templates.set(name, Handlebars.compile(content));
         }
       }
     } catch {
-      this.logger.warn('Template directory not found, skipping template loading');
+      this.logger.warn(
+        'Template directory not found, skipping template loading',
+      );
     }
   }
 
   async sendEmail(to: string, template: string, data: Record<string, unknown>) {
     const compiledTemplate = this.templates.get(template);
-    const html = compiledTemplate ? compiledTemplate(data) : JSON.stringify(data);
+    const html = compiledTemplate
+      ? compiledTemplate(data)
+      : JSON.stringify(data);
     this.logger.log(`Sending email to ${to}: template=${template}`);
     this.logger.debug(`Email HTML: ${html}`);
   }

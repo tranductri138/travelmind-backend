@@ -17,7 +17,10 @@ export class RoomRepository {
     return this.prisma.room.findUnique({ where: { id } });
   }
 
-  async create(hotelId: string, data: Prisma.RoomCreateWithoutHotelInput): Promise<Room> {
+  async create(
+    hotelId: string,
+    data: Prisma.RoomCreateWithoutHotelInput,
+  ): Promise<Room> {
     return this.prisma.room.create({
       data: { ...data, hotel: { connect: { id: hotelId } } },
     });
@@ -49,7 +52,11 @@ export class RoomRepository {
     return unavailable === 0;
   }
 
-  async blockDates(roomId: string, checkIn: Date, checkOut: Date): Promise<void> {
+  async blockDates(
+    roomId: string,
+    checkIn: Date,
+    checkOut: Date,
+  ): Promise<void> {
     const dates: Date[] = [];
     const current = new Date(checkIn);
     while (current < checkOut) {
@@ -68,7 +75,11 @@ export class RoomRepository {
     );
   }
 
-  async releaseDates(roomId: string, checkIn: Date, checkOut: Date): Promise<void> {
+  async releaseDates(
+    roomId: string,
+    checkIn: Date,
+    checkOut: Date,
+  ): Promise<void> {
     await this.prisma.roomAvailability.updateMany({
       where: {
         roomId,

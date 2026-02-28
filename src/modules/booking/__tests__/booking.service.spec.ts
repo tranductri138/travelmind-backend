@@ -76,7 +76,9 @@ describe('BookingService', () => {
   describe('cancel', () => {
     it('should throw if booking not found', async () => {
       mockBookingRepository.findById.mockResolvedValue(null);
-      await expect(service.cancel('b-1', 'user-1')).rejects.toThrow(NotFoundException);
+      await expect(service.cancel('b-1', 'user-1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

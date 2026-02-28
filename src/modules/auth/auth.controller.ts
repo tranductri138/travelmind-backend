@@ -31,7 +31,10 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
-  async login(@Body() _dto: LoginDto, @CurrentUser() user: { id: string; email: string; role: string }) {
+  async login(
+    @Body() _dto: LoginDto,
+    @CurrentUser() user: { id: string; email: string; role: string },
+  ) {
     return this.authService.login(user);
   }
 

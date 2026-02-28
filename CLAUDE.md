@@ -18,11 +18,6 @@ npm test                               # Unit tests (20 tests, 6 suites)
 npm run build                          # Build
 ```
 
-## Quan Trọng
-
-> **KHÔNG đọc `ARCHITECTURE.md` hay `README.md`** — đó là tài liệu cho người đọc.
-> Dùng các file dưới đây thay thế.
-
 ## Context Files — Load Khi Cần
 
 | File | Dùng khi |

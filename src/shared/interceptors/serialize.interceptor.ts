@@ -9,12 +9,14 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class SerializeInterceptor implements NestInterceptor {
-  private readonly sensitiveFields = ['password', 'refreshToken', 'refresh_token'];
+  private readonly sensitiveFields = [
+    'password',
+    'refreshToken',
+    'refresh_token',
+  ];
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    return next.handle().pipe(
-      map((data) => this.stripSensitive(data)),
-    );
+    return next.handle().pipe(map((data) => this.stripSensitive(data)));
   }
 
   private stripSensitive(data: unknown): unknown {

@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../core/database/prisma.service.js';
 import { BookingStatus, PaymentStatus } from '@prisma/client';
@@ -18,7 +23,8 @@ export class PaymentService {
       where: { bookingId },
       include: { booking: true },
     });
-    if (!payment) throw new BadRequestException('Payment not found for this booking');
+    if (!payment)
+      throw new BadRequestException('Payment not found for this booking');
 
     if (payment.status === PaymentStatus.SUCCEEDED) {
       throw new BadRequestException('Payment already completed');
@@ -66,8 +72,12 @@ export class PaymentService {
       }),
     ]);
 
-    this.eventEmitter.emit('booking.confirmed', { bookingId: payment.bookingId });
-    this.logger.log(`LianLian Bank payment confirmed for booking: ${payment.bookingId}`);
+    this.eventEmitter.emit('booking.confirmed', {
+      bookingId: payment.bookingId,
+    });
+    this.logger.log(
+      `LianLian Bank payment confirmed for booking: ${payment.bookingId}`,
+    );
 
     return { status: 'SUCCEEDED', bookingId: payment.bookingId };
   }

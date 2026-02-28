@@ -6,7 +6,10 @@ import { Request } from 'express';
 import { PrismaService } from '../../../core/database/prisma.service.js';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     configService: ConfigService,
     private readonly prisma: PrismaService,
@@ -20,7 +23,10 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   }
 
   async validate(req: Request, payload: { sub: string; email: string }) {
-    const refreshToken = req.get('Authorization')?.replace('Bearer ', '').trim();
+    const refreshToken = req
+      .get('Authorization')
+      ?.replace('Bearer ', '')
+      .trim();
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
     });

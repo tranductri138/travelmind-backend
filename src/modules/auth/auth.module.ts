@@ -12,11 +12,7 @@ import { RolesGuard } from '../../shared/guards/roles.guard.js';
 import { UserModule } from '../user/user.module.js';
 
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({}),
-    UserModule,
-  ],
+  imports: [PassportModule, JwtModule.register({}), UserModule],
   controllers: [AuthController],
   providers: [
     AuthService,

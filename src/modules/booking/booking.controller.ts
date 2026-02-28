@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { BookingService } from './booking.service.js';
 import { CreateBookingDto } from './dto/create-booking.dto.js';
@@ -33,19 +42,13 @@ export class BookingController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get booking details' })
-  async findById(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async findById(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.bookingService.findById(id, userId);
   }
 
   @Patch(':id/cancel')
   @ApiOperation({ summary: 'Cancel a booking' })
-  async cancel(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async cancel(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.bookingService.cancel(id, userId);
   }
 

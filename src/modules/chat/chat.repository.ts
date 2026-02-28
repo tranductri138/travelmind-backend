@@ -6,7 +6,10 @@ import { ChatConversation, ChatMessage, MessageRole } from '@prisma/client';
 export class ChatRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createConversation(userId: string, title: string): Promise<ChatConversation> {
+  async createConversation(
+    userId: string,
+    title: string,
+  ): Promise<ChatConversation> {
     return this.prisma.chatConversation.create({
       data: { userId, title },
     });
@@ -36,7 +39,10 @@ export class ChatRepository {
     return this.prisma.chatConversation.delete({ where: { id } });
   }
 
-  async updateConversationTitle(id: string, title: string): Promise<ChatConversation> {
+  async updateConversationTitle(
+    id: string,
+    title: string,
+  ): Promise<ChatConversation> {
     return this.prisma.chatConversation.update({
       where: { id },
       data: { title },
@@ -53,7 +59,10 @@ export class ChatRepository {
     });
   }
 
-  async getRecentMessages(conversationId: string, limit = 20): Promise<ChatMessage[]> {
+  async getRecentMessages(
+    conversationId: string,
+    limit = 20,
+  ): Promise<ChatMessage[]> {
     return this.prisma.chatMessage.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'desc' },

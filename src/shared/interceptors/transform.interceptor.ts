@@ -14,16 +14,22 @@ export interface Response<T> {
 }
 
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  Response<T>
+> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => {
-        if (data && typeof data === 'object' && 'meta' in data && 'data' in data) {
+        if (
+          data &&
+          typeof data === 'object' &&
+          'meta' in data &&
+          'data' in data
+        ) {
           return {
             success: true,
             data: data.data,

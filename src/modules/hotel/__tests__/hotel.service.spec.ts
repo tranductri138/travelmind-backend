@@ -53,7 +53,12 @@ describe('HotelService', () => {
 
   describe('create', () => {
     it('should create hotel with slug and emit event', async () => {
-      const hotel = { id: '1', name: 'Grand Hotel', slug: 'grand-hotel', city: 'HCMC' };
+      const hotel = {
+        id: '1',
+        name: 'Grand Hotel',
+        slug: 'grand-hotel',
+        city: 'HCMC',
+      };
       mockHotelRepository.create.mockResolvedValue(hotel);
 
       const result = await service.create({

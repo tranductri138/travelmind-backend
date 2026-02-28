@@ -1,4 +1,12 @@
-import { IsString, IsNumber, IsOptional, IsArray, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsArray,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateRoomDto {
@@ -15,7 +23,7 @@ export class CreateRoomDto {
   @IsString()
   type: string;
 
-  @ApiProperty({ example: 150.00 })
+  @ApiProperty({ example: 150.0 })
   @IsNumber()
   @Min(0)
   price: number;

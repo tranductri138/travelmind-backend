@@ -7,7 +7,12 @@ import { HotelIndexingConsumer } from './consumers/hotel-indexing.consumer.js';
 
 @Module({
   controllers: [HotelController],
-  providers: [HotelService, HotelRepository, PriceSyncConsumer, HotelIndexingConsumer],
+  providers: [
+    HotelService,
+    HotelRepository,
+    PriceSyncConsumer,
+    HotelIndexingConsumer,
+  ],
   exports: [HotelService],
 })
 export class HotelModule {}

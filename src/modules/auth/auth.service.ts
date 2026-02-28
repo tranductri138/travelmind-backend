@@ -52,13 +52,20 @@ export class AuthService {
     return { id: user.id, email: user.email, role: user.role };
   }
 
-  async login(user: { id: string; email: string; role: string }): Promise<TokenResponseDto> {
+  async login(user: {
+    id: string;
+    email: string;
+    role: string;
+  }): Promise<TokenResponseDto> {
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
-  async refreshTokens(userId: string, refreshToken: string): Promise<TokenResponseDto> {
+  async refreshTokens(
+    userId: string,
+    refreshToken: string,
+  ): Promise<TokenResponseDto> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException('Access denied');
@@ -88,8 +95,14 @@ export class AuthService {
   ): Promise<TokenResponseDto> {
     const payload = { sub: userId, email, role };
 
-    const accessExpiry = this.configService.get<string>('jwt.accessExpiry', '15m');
-    const refreshExpiry = this.configService.get<string>('jwt.refreshExpiry', '7d');
+    const accessExpiry = this.configService.get<string>(
+      'jwt.accessExpiry',
+      '15m',
+    );
+    const refreshExpiry = this.configService.get<string>(
+      'jwt.refreshExpiry',
+      '7d',
+    );
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -109,7 +122,10 @@ export class AuthService {
     };
   }
 
-  private async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
+  private async updateRefreshToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
     const hashedToken = await hashPassword(refreshToken);
     await this.prisma.user.update({
       where: { id: userId },

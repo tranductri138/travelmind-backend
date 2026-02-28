@@ -46,7 +46,10 @@ describe('UserService', () => {
     it('should update and return user', async () => {
       const user = { id: '1', email: 'test@test.com', firstName: 'Test' };
       mockUserRepository.findById.mockResolvedValue(user);
-      mockUserRepository.update.mockResolvedValue({ ...user, firstName: 'Updated' });
+      mockUserRepository.update.mockResolvedValue({
+        ...user,
+        firstName: 'Updated',
+      });
 
       const result = await service.updateProfile('1', { firstName: 'Updated' });
       expect(result.firstName).toBe('Updated');

@@ -12,7 +12,10 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse() as Record<string, unknown>;
+    const exceptionResponse = exception.getResponse() as Record<
+      string,
+      unknown
+    >;
 
     response.status(status).json({
       success: false,

@@ -10,7 +10,11 @@ export class PushConsumer extends BaseConsumer {
 
   async handlePush(data: { userId: string; title: string; body: string }) {
     return this.handleWithRetry(data, async (msg) => {
-      await this.notificationService.sendPushNotification(msg.userId, msg.title, msg.body);
+      await this.notificationService.sendPushNotification(
+        msg.userId,
+        msg.title,
+        msg.body,
+      );
     });
   }
 }

@@ -5,7 +5,11 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { connect, AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
+import {
+  connect,
+  AmqpConnectionManager,
+  ChannelWrapper,
+} from 'amqp-connection-manager';
 import { EXCHANGE_NAME } from '../../shared/constants/queue.constants.js';
 
 @Injectable()
@@ -24,9 +28,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 
     this.connection = connect([url]);
 
-    this.connection.on('connect', () =>
-      this.logger.log('RabbitMQ connected'),
-    );
+    this.connection.on('connect', () => this.logger.log('RabbitMQ connected'));
     this.connection.on('disconnect', ({ err }) =>
       this.logger.warn(`RabbitMQ disconnected: ${err?.message}`),
     );
@@ -35,9 +37,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       json: true,
       setup: async (ch: import('amqplib').Channel) => {
         await ch.assertExchange(EXCHANGE_NAME, 'topic', { durable: true });
-        this.logger.log(
-          `Exchange "${EXCHANGE_NAME}" (topic) asserted`,
-        );
+        this.logger.log(`Exchange "${EXCHANGE_NAME}" (topic) asserted`);
       },
     });
 

@@ -28,7 +28,9 @@ export class BookingSaga {
     );
 
     if (!isAvailable) {
-      throw new BadRequestException('Room is not available for the selected dates');
+      throw new BadRequestException(
+        'Room is not available for the selected dates',
+      );
     }
 
     try {
@@ -57,12 +59,18 @@ export class BookingSaga {
         return newBooking;
       });
 
-      await this.roomService.blockDates(params.roomId, params.checkIn, params.checkOut);
+      await this.roomService.blockDates(
+        params.roomId,
+        params.checkIn,
+        params.checkOut,
+      );
 
       this.logger.log(`Booking saga completed: ${booking.id}`);
       return booking;
     } catch (error) {
-      this.logger.error(`Booking saga failed: ${error instanceof Error ? error.message : 'Unknown'}`);
+      this.logger.error(
+        `Booking saga failed: ${error instanceof Error ? error.message : 'Unknown'}`,
+      );
       throw error;
     }
   }

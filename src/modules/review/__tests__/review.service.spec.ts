@@ -56,7 +56,10 @@ describe('ReviewService', () => {
       mockReviewRepository.create.mockResolvedValue(review);
       mockHotelService.updateRating.mockResolvedValue(undefined);
 
-      const result = await service.create('user-1', { hotelId: 'h-1', rating: 5 });
+      const result = await service.create('user-1', {
+        hotelId: 'h-1',
+        rating: 5,
+      });
       expect(result).toEqual(review);
       expect(mockHotelService.updateRating).toHaveBeenCalledWith('h-1');
     });

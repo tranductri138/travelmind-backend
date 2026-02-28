@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Delete, Param, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { RoomService } from './room.service.js';
 import { CreateRoomDto } from './dto/create-room.dto.js';
@@ -36,10 +44,7 @@ export class RoomController {
   @Auth('ADMIN', 'HOTEL_OWNER')
   @Post()
   @ApiOperation({ summary: 'Create a room for a hotel' })
-  async create(
-    @Param('hotelId') hotelId: string,
-    @Body() dto: CreateRoomDto,
-  ) {
+  async create(@Param('hotelId') hotelId: string, @Body() dto: CreateRoomDto) {
     return this.roomService.create(hotelId, dto);
   }
 

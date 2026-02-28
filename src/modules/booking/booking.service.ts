@@ -44,7 +44,13 @@ export class BookingService {
 
     this.eventEmitter.emit(
       'booking.created',
-      new BookingCreatedEvent(booking.id, userId, dto.roomId, checkIn, checkOut),
+      new BookingCreatedEvent(
+        booking.id,
+        userId,
+        dto.roomId,
+        checkIn,
+        checkOut,
+      ),
     );
 
     return booking;
@@ -106,7 +112,9 @@ export class BookingService {
       throw new ForbiddenException();
     }
     if (booking.status === BookingStatus.CONFIRMED) {
-      throw new BadRequestException('Cannot delete a confirmed booking, cancel it first');
+      throw new BadRequestException(
+        'Cannot delete a confirmed booking, cancel it first',
+      );
     }
     return this.bookingRepository.delete(id);
   }
