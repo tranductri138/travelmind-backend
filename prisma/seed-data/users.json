@@ -2,15 +2,31 @@
   {
     "email": "admin@travelmind.com",
     "password": "Admin123!",
-    "firstName": "Admin",
-    "lastName": "TravelMind",
+    "name": "Admin TravelMind",
     "role": "ADMIN"
   },
   {
     "email": "user@travelmind.com",
     "password": "User123!",
-    "firstName": "Demo",
-    "lastName": "User",
+    "name": "Demo User",
+    "role": "USER"
+  },
+  {
+    "email": "linh@travelmind.com",
+    "password": "User123!",
+    "name": "Nguyễn Thị Linh",
+    "role": "USER"
+  },
+  {
+    "email": "minh@travelmind.com",
+    "password": "User123!",
+    "name": "Trần Văn Minh",
+    "role": "USER"
+  },
+  {
+    "email": "hoa@travelmind.com",
+    "password": "User123!",
+    "name": "Lê Thanh Hoa",
     "role": "USER"
   }
 ]

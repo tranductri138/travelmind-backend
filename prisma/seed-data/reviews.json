@@ -1,0 +1,58 @@
+[
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "rating": 5,
+    "title": "Tuyệt vời, sẽ quay lại!",
+    "comment": "Phòng rất sạch sẽ và rộng rãi, view biển Mỹ Khê đẹp mê ly. Nhân viên nhiệt tình, buffet sáng ngon. Đặc biệt giá rất hợp lý so với chất lượng. Chắc chắn sẽ quay lại lần sau!"
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "rating": 4,
+    "title": "Vị trí đắc địa, phòng đẹp",
+    "comment": "Khách sạn gần biển, đi bộ 2 phút là tới. Phòng thiết kế theo phong cách châu Âu rất sang. Trừ 1 sao vì hồ bơi hơi nhỏ, nhưng nhìn chung rất hài lòng."
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "rating": 5,
+    "title": "Nhân viên cực kỳ thân thiện",
+    "comment": "Mình đi cùng gia đình 4 người, được nhân viên tư vấn chỗ ăn hải sản ngon và rẻ. Phòng suite rộng, có ban công nhìn ra biển. Con mình rất thích hồ bơi. 10 điểm!"
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "rating": 4,
+    "title": "Đáng tiền, recommend cho ai đi Đà Nẵng",
+    "comment": "Check-in nhanh, phòng sạch, ga giường trắng tinh. Wifi mạnh, có minibar. Điểm trừ nhỏ là bãi đỗ xe hơi chật vào cuối tuần, nên đi taxi thì tiện hơn."
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "rating": 4,
+    "title": "Khách sạn lâu đời nhưng vẫn chất lượng",
+    "comment": "Khách sạn có lịch sử lâu đời, vị trí trung tâm Ba Đình rất thuận tiện đi lại. Phòng rộng, sạch sẽ. Nhà hàng Trung Hoa trong khách sạn nấu ăn rất ngon, đặc biệt món dimsum."
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "rating": 5,
+    "title": "Ẩm thực xuất sắc, dịch vụ chu đáo",
+    "comment": "Đi công tác Hà Nội hay ở đây. Buffet sáng phong phú, có cả món Việt và món Tàu. Phòng yên tĩnh, ngủ rất ngon. Staff lễ tân nói tiếng Anh giỏi, hỗ trợ đặt taxi và tour rất nhanh."
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "rating": 4,
+    "title": "Vị trí trung tâm, gần Hồ Giảng Võ",
+    "comment": "View hồ rất đẹp, sáng ra ngồi uống cà phê ở lobby nhìn hồ thư giãn lắm. Phòng hơi cũ một chút nhưng vẫn sạch sẽ và đầy đủ tiện nghi. Giá hợp lý cho khu vực Ba Đình."
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "rating": 3,
+    "title": "Tạm ổn, cần nâng cấp",
+    "comment": "Vị trí tốt, nhân viên ok. Nhưng nội thất phòng đã cũ, cần renovate lại. Nước nóng lúc có lúc không. Hy vọng khách sạn sẽ nâng cấp trong thời gian tới."
+  }
+]
