@@ -18,7 +18,7 @@
 9. [Hotel Module — CRUD Khach San](#9-hotel-module)
 10. [Room Module — Phong & Availability](#10-room-module)
 11. [Booking Module — Dat Phong & Saga Pattern](#11-booking-module)
-12. [Payment Module — Stripe Thanh Toan](#12-payment-module)
+12. [Payment Module — LianLian Bank Thanh Toan](#12-payment-module)
 13. [Review Module — Danh Gia & Rating](#13-review-module)
 14. [Search Module — Elasticsearch & AI Semantic](#14-search-module)
 15. [Notification Module — Email & Push](#15-notification-module)
@@ -34,7 +34,7 @@
 TravelMind Backend la **NestJS API server**, chiu trach nhiem:
 - Quan ly toan bo du lieu (hotel, user, booking, room, review, payment)
 - Xac thuc va phan quyen (JWT + Passport)
-- Thanh toan qua Stripe
+- Thanh toan qua LianLian Bank (simulated)
 - Tim kiem full-text qua Elasticsearch
 - Proxy semantic search sang AI service
 - Gui event sang AI service qua RabbitMQ de dong bo embedding
@@ -77,7 +77,7 @@ src/
 ├── main.ts              ← Entry point: tao app, cau hinh, listen port
 ├── app.module.ts        ← Root module: import tat ca modules
 ├── core/                ← Ha tang dung chung (global)
-│   ├── config/          ← 8 file config: app, database, jwt, redis, rabbitmq, stripe, elk, ai
+│   ├── config/          ← 8 file config: app, database, jwt, redis, rabbitmq, elk, ai, stripe(legacy)
 │   ├── database/        ← PrismaService (ORM), PrismaHealthIndicator
 │   ├── cache/           ← CacheService (Redis backend)
 │   ├── logger/          ← LoggerService (JSON structured logs)
@@ -100,7 +100,7 @@ src/
     ├── hotel/           ← Hotel CRUD + search + nearby
     ├── room/            ← Room CRUD + availability management
     ├── booking/         ← Booking CRUD + Saga pattern
-    ├── payment/         ← Stripe PaymentIntent + webhook
+    ├── payment/         ← LianLian Bank simulated payment
     ├── review/          ← Review CRUD + rating aggregation
     ├── search/          ← Elasticsearch + AI semantic proxy
     ├── notification/    ← Email + push (template-based)
@@ -490,7 +490,7 @@ export class CoreModule {}
 | `jwt.config.ts` | `jwt` | `config.get('jwt.accessSecret')` |
 | `redis.config.ts` | `redis` | `config.get('redis.host')` → localhost |
 | `rabbitmq.config.ts` | `rabbitmq` | `config.get('rabbitmq.url')` |
-| `stripe.config.ts` | `stripe` | `config.get('stripe.secretKey')` |
+| `stripe.config.ts` | `stripe` | (legacy — LianLian Bank khong can key) |
 | `elk.config.ts` | `elk` | `config.get('elk.url')` |
 | `ai.config.ts` | `ai` | `config.get('ai.serviceUrl')` → http://localhost:8000 |
 
@@ -1142,7 +1142,7 @@ async execute(params) {
 ### 11.3. Trang Thai Booking
 
 ```
-PENDING ──(Stripe thanh toan OK)──→ CONFIRMED
+PENDING ──(LianLian Bank confirm)──→ CONFIRMED
 PENDING ──(User huy)──────────────→ CANCELLED
 CONFIRMED ──(User huy)───────────→ CANCELLED
 CONFIRMED ──(Het thoi gian o)────→ COMPLETED
@@ -1180,8 +1180,7 @@ File: `src/modules/payment/`
 payment/
 ├── payment.module.ts
 ├── payment.controller.ts    ← 2 routes
-├── payment.service.ts       ← Stripe integration
-├── stripe.provider.ts       ← Stripe client factory
+├── payment.service.ts       ← LianLian Bank simulated payment
 └── dto/
     ├── create-payment.dto.ts
     └── payment-response.dto.ts
@@ -1191,56 +1190,49 @@ payment/
 
 | Method | Path | Auth | Mo ta |
 |--------|------|------|-------|
-| POST | `/api/payments/intent/:bookingId` | JWT | Tao Stripe PaymentIntent |
-| POST | `/api/payments/webhook` | @Public | Nhan webhook tu Stripe |
+| POST | `/api/payments/initiate/:bookingId` | JWT | Tao giao dich LianLian Bank |
+| POST | `/api/payments/confirm/:transactionId` | JWT | Xac nhan thanh toan (simulated) |
 
-### 12.2. Flow Thanh Toan Day Du
+### 12.2. Flow Thanh Toan Day Du (LianLian Bank — Simulated)
 
 ```
-Browser                  Backend                      Stripe
+Browser                  Backend                   LianLian Bank (simulated)
   │                        │                            │
   │ 1. POST /bookings ───→ │                            │
   │    { roomId, dates }   │── BookingSaga ──→ DB       │
   │ ←── { bookingId } ────│                            │
   │                        │                            │
   │ 2. POST /payments/     │                            │
-  │    intent/:bookingId ─→│                            │
-  │                        │── stripe.paymentIntents    │
-  │                        │   .create({ amount }) ───→ │
-  │                        │ ←── { clientSecret } ──────│
-  │ ←── { clientSecret } ──│                            │
+  │    initiate/:bookingId │                            │
+  │ ──────────────────────→│                            │
+  │                        │── Generate transactionId   │
+  │                        │   (LL-uuid)                │
+  │ ←── { transactionId,  │                            │
+  │       amount, bankInfo }│                            │
   │                        │                            │
-  │ 3. Stripe.js confirm   │                            │
-  │    (dien the, submit) ─│──────────────────────────→ │
-  │                        │                            │── Xu ly thanh toan
-  │                        │                            │
-  │                        │ 4. Webhook ←───────────────│
-  │                        │    payment_intent.succeeded │
-  │                        │                            │
+  │ 3. User xac nhan       │                            │
+  │    POST /payments/     │                            │
+  │    confirm/:txId ─────→│                            │
   │                        │── Update payment: SUCCEEDED │
   │                        │── Update booking: CONFIRMED │
   │                        │── Emit 'booking.confirmed'  │
   │                        │     → EventBridge           │
   │                        │     → RabbitMQ              │
   │                        │     → AI service            │
+  │ ←── { status } ────────│                            │
 ```
 
-**Webhook handler:**
+**Confirm handler:**
 ```typescript
-async handleWebhook(signature, payload) {
-  // 1. Verify chu ky (chong gia mao)
-  const event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+async confirmPayment(transactionId) {
+  // 1. Tim payment theo transactionId
+  const payment = await this.prisma.payment.findUnique({ where: { transactionId } });
 
-  if (event.type === 'payment_intent.succeeded') {
-    // 2. Tim payment theo stripePaymentId
-    // 3. Update payment → SUCCEEDED, booking → CONFIRMED
-    // 4. Emit 'booking.confirmed' event
-    this.eventEmitter.emit('booking.confirmed', { bookingId });
-  }
+  // 2. Update payment → SUCCEEDED, booking → CONFIRMED
+  await this.prisma.$transaction([...]);
 
-  if (event.type === 'payment_intent.payment_failed') {
-    // Update payment → FAILED
-  }
+  // 3. Emit 'booking.confirmed' event
+  this.eventEmitter.emit('booking.confirmed', { bookingId: payment.bookingId });
 }
 ```
 
@@ -1496,7 +1488,7 @@ File: `prisma/schema.prisma`
 │              │               │              │  │
 │ id           │               │ id           │  │
 │ userId ──────│               │ bookingId    │  │
-│ hotelId ─────│──┐            │ stripePayId  │  │
+│ hotelId ─────│──┐            │ transactionId│  │
 │ rating       │  │            │ amount       │  │
 │ title        │  │            │ status (enum)│  │
 │ comment      │  │            └──────────────┘  │
@@ -1538,7 +1530,7 @@ File: `prisma/schema.prisma`
 ### 18.1. User Dat Phong (Full Flow)
 
 ```
-Browser                Backend                      Stripe              AI Service
+Browser                Backend                   LianLian Bank         AI Service
   │                      │                            │                     │
   │─POST /bookings──────→│                            │                     │
   │  { roomId, dates }   │                            │                     │
@@ -1550,18 +1542,18 @@ Browser                Backend                      Stripe              AI Servi
   │                      ├─ Emit booking.created ──────│─────────────────────│→ Embed
   │←── { bookingId } ───┤                            │                     │
   │                      │                            │                     │
-  │─POST /payments/intent→│                            │                     │
-  │                      ├─ stripe.create intent ─────→│                     │
-  │←── { clientSecret } ──│←── clientSecret ───────────│                     │
+  │─POST /payments/      │                            │                     │
+  │  initiate/:bookingId→│                            │                     │
+  │                      ├─ Generate transactionId     │                     │
+  │←── { transactionId,  │  (LL-uuid)                │                     │
+  │     amount, bankInfo }│                            │                     │
   │                      │                            │                     │
-  │─Stripe.js confirm ──│────────────────────────────→│                     │
-  │  (dien the, submit)  │                            │── Xu ly thanh toan  │
-  │                      │                            │                     │
-  │                      │←── webhook succeeded ──────│                     │
+  │─POST /payments/      │                            │                     │
+  │  confirm/:txId ─────→│                            │                     │
   │                      ├─ Payment → SUCCEEDED       │                     │
   │                      ├─ Booking → CONFIRMED       │                     │
   │                      ├─ Emit booking.confirmed ───│─────────────────────│→ Update
-  │                      │                            │                     │
+  │←── { status } ───────│                            │                     │
 ```
 
 ### 18.2. Tao Hotel → AI Embedding
@@ -1654,7 +1646,7 @@ Luong du lieu:
 3. Browser search → Frontend → Backend → proxy → AI → Qdrant → result
 4. Browser search → Frontend → Backend → Elasticsearch → result
 5. Backend cache → Redis → Backend (giam tai DB)
-6. Stripe webhook → Backend → update booking status → emit event
+6. LianLian Bank confirm → Backend → update booking status → emit event
 ```
 
 ### Bang Tom Tat 34 API Endpoints
@@ -1695,8 +1687,8 @@ Bookings (5):
   DELETE /api/bookings/:id                 JWT   Xoa (PENDING only)
 
 Payments (2):
-  POST   /api/payments/intent/:bookingId   JWT      Tao PaymentIntent
-  POST   /api/payments/webhook             @Public  Stripe webhook
+  POST   /api/payments/initiate/:bookingId   JWT    Tao giao dich LianLian Bank
+  POST   /api/payments/confirm/:txId         JWT    Xac nhan thanh toan
 
 Reviews (3):
   GET    /api/reviews?hotelId=xxx          @Public  Danh sach review

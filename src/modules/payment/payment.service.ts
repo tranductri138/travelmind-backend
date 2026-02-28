@@ -1,78 +1,74 @@
-import { Injectable, Inject, Logger, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../core/database/prisma.service.js';
-import { STRIPE_CLIENT } from './stripe.provider.js';
 import { BookingStatus, PaymentStatus } from '@prisma/client';
-import Stripe from 'stripe';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
 
   constructor(
-    @Inject(STRIPE_CLIENT) private readonly stripe: Stripe,
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async createPaymentIntent(bookingId: string) {
+  async initiatePayment(bookingId: string) {
     const payment = await this.prisma.payment.findUnique({
       where: { bookingId },
+      include: { booking: true },
     });
-    if (!payment) throw new BadRequestException('Payment not found');
+    if (!payment) throw new BadRequestException('Payment not found for this booking');
 
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: Math.round(payment.amount * 100),
-      currency: payment.currency.toLowerCase(),
-      metadata: { bookingId, paymentId: payment.id },
-    });
+    if (payment.status === PaymentStatus.SUCCEEDED) {
+      throw new BadRequestException('Payment already completed');
+    }
+
+    const transactionId = `LL-${randomUUID()}`;
 
     await this.prisma.payment.update({
       where: { id: payment.id },
-      data: { stripePaymentId: paymentIntent.id },
+      data: { transactionId },
     });
 
-    return { clientSecret: paymentIntent.client_secret };
+    return {
+      transactionId,
+      amount: payment.amount,
+      currency: payment.currency,
+      bankInfo: {
+        bankName: 'LianLian Bank',
+        accountNumber: '8800-1234-5678-9999',
+        accountHolder: 'TravelMind International Ltd.',
+        routingCode: 'LLBKVN2X',
+      },
+    };
   }
 
-  async handleWebhook(signature: string, payload: Buffer) {
-    const webhookSecret = this.configService.get<string>('stripe.webhookSecret', '');
-    let event: Stripe.Event;
+  async confirmPayment(transactionId: string) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { transactionId },
+    });
 
-    try {
-      event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-    } catch (err) {
-      this.logger.error(`Webhook signature verification failed: ${err instanceof Error ? err.message : 'Unknown'}`);
-      throw new BadRequestException('Invalid webhook signature');
+    if (!payment) throw new NotFoundException('Transaction not found');
+
+    if (payment.status === PaymentStatus.SUCCEEDED) {
+      throw new BadRequestException('Payment already confirmed');
     }
 
-    if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const bookingId = paymentIntent.metadata.bookingId;
+    await this.prisma.$transaction([
+      this.prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: PaymentStatus.SUCCEEDED, method: 'lianlian_bank' },
+      }),
+      this.prisma.booking.update({
+        where: { id: payment.bookingId },
+        data: { status: BookingStatus.CONFIRMED },
+      }),
+    ]);
 
-      await this.prisma.$transaction([
-        this.prisma.payment.update({
-          where: { stripePaymentId: paymentIntent.id },
-          data: { status: PaymentStatus.SUCCEEDED, method: paymentIntent.payment_method as string },
-        }),
-        this.prisma.booking.update({
-          where: { id: bookingId },
-          data: { status: BookingStatus.CONFIRMED },
-        }),
-      ]);
+    this.eventEmitter.emit('booking.confirmed', { bookingId: payment.bookingId });
+    this.logger.log(`LianLian Bank payment confirmed for booking: ${payment.bookingId}`);
 
-      this.eventEmitter.emit('booking.confirmed', { bookingId });
-      this.logger.log(`Payment succeeded for booking: ${bookingId}`);
-    }
-
-    if (event.type === 'payment_intent.payment_failed') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      await this.prisma.payment.update({
-        where: { stripePaymentId: paymentIntent.id },
-        data: { status: PaymentStatus.FAILED },
-      });
-    }
+    return { status: 'SUCCEEDED', bookingId: payment.bookingId };
   }
 }

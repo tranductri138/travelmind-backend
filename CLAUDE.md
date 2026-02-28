@@ -1,6 +1,6 @@
 # TravelMind Backend
 
-NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + Stripe.
+NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + LianLian Bank (simulated payment).
 
 ## Quick Reference
 
@@ -40,7 +40,7 @@ npx prisma generate                    # Regenerate client
 npx tsx prisma/seed.ts                 # Seed data (admin@travelmind.com / Admin123!)
 npm run start:dev                      # Dev server (watch mode)
 npm run build                          # Build
-npm test                               # Unit tests (17 tests, 6 suites)
+npm test                               # Unit tests (20 tests, 6 suites)
 ```
 
 ## 33 API Endpoints
@@ -50,7 +50,7 @@ Users: GET/PATCH/DELETE me
 Hotels: GET (search, nearby, :id), POST, PATCH, DELETE, DELETE permanent
 Rooms: GET (list, availability), POST, DELETE, DELETE permanent
 Bookings: GET (list, :id), POST, PATCH cancel, DELETE
-Payments: POST intent, POST webhook
+Payments: POST initiate, POST confirm
 Reviews: GET, POST, DELETE
 Search: GET (Elasticsearch)
 Crawler: POST trigger, GET status

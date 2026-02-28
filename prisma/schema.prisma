@@ -145,17 +145,17 @@ model Booking {
 }
 
 model Payment {
-  id                String        @id @default(uuid())
-  bookingId         String        @unique @map("booking_id")
-  stripePaymentId   String?       @unique @map("stripe_payment_id")
-  amount            Float
-  currency          String        @default("USD")
-  status            PaymentStatus @default(PENDING)
-  method            String?
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
+  id              String        @id @default(uuid())
+  bookingId       String        @unique @map("booking_id")
+  transactionId   String?       @unique @map("transaction_id")
+  amount          Float
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  method          String?       @default("lianlian_bank")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
 
-  booking           Booking       @relation(fields: [bookingId], references: [id])
+  booking         Booking       @relation(fields: [bookingId], references: [id])
 
   @@index([status])
   @@map("payments")

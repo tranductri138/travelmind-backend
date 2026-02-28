@@ -24,7 +24,7 @@ Phần AI/LLM (gợi ý lịch trình, semantic search, vector embeddings) đư�
 | **Cache** | Redis 7 |
 | **Search Engine** | Elasticsearch 8 (phần của ELK) |
 | **Logging** | ELK Stack (Elasticsearch + Logstash + Kibana) |
-| **Payment** | Stripe |
+| **Payment** | LianLian Bank (simulated) |
 | **Auth** | JWT (access + refresh token) + Passport |
 | **Validation** | class-validator + class-transformer |
 | **Documentation** | Swagger (OpenAPI 3.0) |
@@ -76,7 +76,6 @@ travelmind-api/
 │   │   │   ├── redis.config.ts
 │   │   │   ├── rabbitmq.config.ts
 │   │   │   ├── jwt.config.ts
-│   │   │   ├── stripe.config.ts
 │   │   │   └── elk.config.ts
 │   │   └── health/
 │   │       ├── health.module.ts         # @nestjs/terminus health checks
@@ -222,11 +221,10 @@ travelmind-api/
 │   │   │       ├── booking.service.spec.ts
 │   │   │       └── booking.e2e-spec.ts
 │   │   │
-│   │   ├── payment/                     # 💳 Payment (Stripe)
+│   │   ├── payment/                     # 💳 Payment (LianLian Bank)
 │   │   │   ├── payment.module.ts
-│   │   │   ├── payment.controller.ts    # POST /payments/intent, POST /payments/webhook
-│   │   │   ├── payment.service.ts       # Stripe PaymentIntent, refund
-│   │   │   ├── stripe.provider.ts       # Stripe SDK factory provider
+│   │   │   ├── payment.controller.ts    # POST /payments/initiate, POST /payments/confirm
+│   │   │   ├── payment.service.ts       # LianLian Bank simulated payment
 │   │   │   ├── dto/
 │   │   │   │   ├── create-payment.dto.ts
 │   │   │   │   └── payment-response.dto.ts
@@ -425,7 +423,7 @@ AppModule
 │   └── depends on: HotelModule, RoomModule, PaymentModule
 │
 ├── PaymentModule
-│   └── depends on: (none — Stripe SDK)
+│   └── depends on: (none — LianLian Bank simulated)
 │
 ├── ReviewModule
 │   └── depends on: HotelModule
@@ -520,8 +518,8 @@ BookingService.create()
  email
               │
               ▼ (User confirms payment)
-    PaymentService.handleWebhook()
-    ├── Verify Stripe signature
+    PaymentService.confirmPayment()
+    ├── Verify transactionId
     ├── Update booking status → CONFIRMED
     └── Publish → booking.confirmed
               │
@@ -625,9 +623,9 @@ Mọi log từ app đều output dạng JSON để Logstash parse:
   "level": "error",
   "message": "Payment failed",
   "error": {
-    "name": "StripeError",
-    "message": "Card declined",
-    "code": "card_declined",
+    "name": "PaymentError",
+    "message": "Transaction not found",
+    "code": "payment_failed",
     "stack": "..."                          // Chỉ trong development
   },
   "request": {
@@ -689,28 +687,30 @@ output {
 
 ---
 
-## 💳 Payment Flow (Stripe)
+## 💳 Payment Flow (LianLian Bank — Simulated)
 
 ```
-Client                    API                       Stripe
+Client                    API                     LianLian Bank (simulated)
   │                        │                          │
   │  POST /bookings        │                          │
   │───────────────────────►│                          │
   │                        │  Create booking (PENDING) │
-  │                        │  Create PaymentIntent     │
-  │                        │─────────────────────────►│
-  │                        │  ◄── clientSecret         │
-  │  ◄── { clientSecret }  │                          │
+  │  ◄── { booking }       │                          │
   │                        │                          │
-  │  stripe.confirmPayment │                          │
-  │───────────────────────────────────────────────────►│
+  │  POST /payments/       │                          │
+  │  initiate/:bookingId   │                          │
+  │───────────────────────►│                          │
+  │                        │  Generate transactionId   │
+  │  ◄── { transactionId,  │  (LL-uuid)              │
+  │       amount, bankInfo }│                          │
   │                        │                          │
-  │                        │  Webhook: payment_intent │
-  │                        │  .succeeded              │
-  │                        │◄─────────────────────────│
-  │                        │  Verify signature        │
-  │                        │  Update booking→CONFIRMED│
+  │  POST /payments/       │                          │
+  │  confirm/:transactionId│                          │
+  │───────────────────────►│                          │
+  │                        │  Update payment→SUCCEEDED │
+  │                        │  Update booking→CONFIRMED │
   │                        │  Publish booking.confirmed│
+  │  ◄── { status }        │                          │
   │                        │                          │
   │  ◄── Confirmation email│                          │
 ```
@@ -924,7 +924,8 @@ travelmind-ai/                   # SEPARATE REPO
 | `GET` | `/bookings` | User | Lịch sử booking của user |
 | `GET` | `/bookings/:id` | User | Chi tiết booking |
 | `PATCH` | `/bookings/:id/cancel` | User | Hủy booking |
-| `POST` | `/payments/webhook` | Stripe | Stripe webhook handler |
+| `POST` | `/payments/initiate/:bookingId` | User | Initiate LianLian Bank payment |
+| `POST` | `/payments/confirm/:transactionId` | User | Confirm LianLian Bank payment |
 | `GET` | `/reviews?hotelId=x` | Public | Reviews của hotel |
 | `POST` | `/reviews` | User | Viết review (đã từng booking) |
 | `GET` | `/search` | Public | Full-text search (Elasticsearch) |

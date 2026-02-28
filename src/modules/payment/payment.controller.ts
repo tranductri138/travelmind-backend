@@ -1,30 +1,22 @@
-import { Controller, Post, Param, Req, Headers } from '@nestjs/common';
-import type { RawBodyRequest } from '@nestjs/common';
+import { Controller, Post, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { Request } from 'express';
 import { PaymentService } from './payment.service.js';
-import { Public } from '../../shared/decorators/public.decorator.js';
 
 @ApiTags('Payments')
+@ApiBearerAuth()
 @Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @ApiBearerAuth()
-  @Post('intent/:bookingId')
-  @ApiOperation({ summary: 'Create a payment intent' })
-  async createIntent(@Param('bookingId') bookingId: string) {
-    return this.paymentService.createPaymentIntent(bookingId);
+  @Post('initiate/:bookingId')
+  @ApiOperation({ summary: 'Initiate a LianLian Bank payment for a booking' })
+  async initiatePayment(@Param('bookingId') bookingId: string) {
+    return this.paymentService.initiatePayment(bookingId);
   }
 
-  @Public()
-  @Post('webhook')
-  @ApiOperation({ summary: 'Handle Stripe webhook' })
-  async webhook(
-    @Headers('stripe-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>,
-  ) {
-    await this.paymentService.handleWebhook(signature, req.rawBody!);
-    return { received: true };
+  @Post('confirm/:transactionId')
+  @ApiOperation({ summary: 'Confirm a LianLian Bank payment (simulated)' })
+  async confirmPayment(@Param('transactionId') transactionId: string) {
+    return this.paymentService.confirmPayment(transactionId);
   }
 }
