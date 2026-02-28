@@ -1,4 +1,4 @@
-export const EXCHANGE_NAME = 'travelmind.events';
+export const EXCHANGE_NAME = 'travelmind';
 export const DLX_EXCHANGE = 'travelmind.dlx';
 
 export const ROUTING_KEYS = {

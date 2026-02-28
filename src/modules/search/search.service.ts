@@ -1,16 +1,28 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 import { Client } from '@elastic/elasticsearch';
+import { firstValueFrom } from 'rxjs';
 import { ELASTICSEARCH_CLIENT } from './elasticsearch.provider.js';
 import { SearchQueryDto } from './dto/search-query.dto.js';
+import { SemanticSearchDto } from './dto/semantic-search.dto.js';
 import { HOTEL_INDEX } from './indices/hotel.index.js';
 
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
+  private readonly aiServiceUrl: string;
 
   constructor(
     @Inject(ELASTICSEARCH_CLIENT) private readonly esClient: Client,
-  ) {}
+    private readonly httpService: HttpService,
+    private readonly config: ConfigService,
+  ) {
+    this.aiServiceUrl = this.config.get<string>(
+      'ai.serviceUrl',
+      'http://localhost:8000',
+    );
+  }
 
   async searchHotels(dto: SearchQueryDto) {
     const { q, city, country, page = 1, limit = 10 } = dto;
@@ -65,6 +77,20 @@ export class SearchService {
     } catch (error) {
       this.logger.error(`Search failed: ${error instanceof Error ? error.message : 'Unknown'}`);
       return { data: [], meta: { total: 0, page, limit, totalPages: 0 } };
+    }
+  }
+
+  async semanticSearch(dto: SemanticSearchDto) {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post(`${this.aiServiceUrl}/ai/search`, dto),
+      );
+      return data;
+    } catch (error) {
+      this.logger.error(
+        `Semantic search failed: ${error instanceof Error ? error.message : 'Unknown'}`,
+      );
+      throw error;
     }
   }
 }

@@ -1,4 +1,5 @@
 services:
+  # ── Application Services ──────────────────────────────────
   api:
     build:
       context: .
@@ -25,7 +26,55 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - LOGSTASH_HOST=logstash
       - LOGSTASH_PORT=5044
+      - AI_SERVICE_URL=http://ai:8000
 
+  ai:
+    build:
+      context: ../ai
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../ai:/app
+      - /app/.venv
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    environment:
+      - APP_ENV=development
+      - APP_PORT=8000
+      - LOG_LEVEL=info
+      - DATABASE_URL=postgresql+asyncpg://travelmind:secret@postgres:5432/travelmind
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_COLLECTION_HOTELS=hotels
+      - QDRANT_COLLECTION_REVIEWS=reviews
+      - QDRANT_COLLECTION_BOOKINGS=bookings
+      - LLM_PROVIDER=openai
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-xxx}
+      - OPENAI_MODEL=gpt-4o-mini
+      - OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+      - EMBEDDING_DIMENSION=1536
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    environment:
+      - VITE_API_URL=http://localhost:3000/api
+
+  # ── Databases ─────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     environment:
@@ -52,20 +101,37 @@ services:
       timeout: 5s
       retries: 5
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/6333"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Messaging ─────────────────────────────────────────────
   rabbitmq:
-    image: rabbitmq:3.13-management-alpine
+    image: rabbitmq:4-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 5
 
+  # ── ELK Stack ─────────────────────────────────────────────
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     environment:
@@ -98,3 +164,5 @@ services:
 volumes:
   pgdata:
   esdata:
+  qdrant_data:
+  rabbitmq_data:

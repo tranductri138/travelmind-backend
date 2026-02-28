@@ -8,6 +8,7 @@ import { jwtConfig } from './jwt.config.js';
 import { rabbitmqConfig } from './rabbitmq.config.js';
 import { stripeConfig } from './stripe.config.js';
 import { elkConfig } from './elk.config.js';
+import { aiConfig } from './ai.config.js';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { elkConfig } from './elk.config.js';
         rabbitmqConfig,
         stripeConfig,
         elkConfig,
+        aiConfig,
       ],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
@@ -40,6 +42,7 @@ import { elkConfig } from './elk.config.js';
         ELASTICSEARCH_URL: Joi.string().default('http://localhost:9200'),
         LOGSTASH_HOST: Joi.string().default('localhost'),
         LOGSTASH_PORT: Joi.number().default(5044),
+        AI_SERVICE_URL: Joi.string().default('http://localhost:8000'),
       }),
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),

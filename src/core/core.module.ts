@@ -4,6 +4,7 @@ import { PrismaModule } from './database/prisma.module.js';
 import { AppCacheModule } from './cache/cache.module.js';
 import { LoggerModule } from './logger/logger.module.js';
 import { HealthModule } from './health/health.module.js';
+import { RabbitMQModule } from './queue/rabbitmq.module.js';
 
 @Global()
 @Module({
@@ -13,12 +14,14 @@ import { HealthModule } from './health/health.module.js';
     AppCacheModule,
     LoggerModule,
     HealthModule,
+    RabbitMQModule,
   ],
   exports: [
     AppConfigModule,
     PrismaModule,
     AppCacheModule,
     LoggerModule,
+    RabbitMQModule,
   ],
 })
 export class CoreModule {}
