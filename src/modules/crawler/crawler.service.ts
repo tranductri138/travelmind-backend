@@ -25,10 +25,7 @@ export class CrawlerService {
     );
   }
 
-  async triggerCrawl(
-    url: string,
-    extractReviews: boolean,
-  ): Promise<CrawlJob> {
+  async triggerCrawl(url: string, extractReviews: boolean): Promise<CrawlJob> {
     const job = await this.prisma.crawlJob.create({
       data: { url, extractReviews, status: CrawlStatus.PENDING },
     });
@@ -102,8 +99,7 @@ export class CrawlerService {
         `Crawl job ${jobId} completed — created hotel "${hotel.name}" (${hotel.id})`,
       );
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unknown error';
+      const message = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Crawl job ${jobId} failed: ${message}`);
 
       await this.prisma.crawlJob.update({
@@ -116,7 +112,10 @@ export class CrawlerService {
   async listJobs(
     page: number,
     limit: number,
-  ): Promise<{ data: CrawlJob[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+  ): Promise<{
+    data: CrawlJob[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
     const [data, total] = await Promise.all([
       this.prisma.crawlJob.findMany({
         orderBy: { createdAt: 'desc' },

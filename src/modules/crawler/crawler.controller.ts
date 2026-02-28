@@ -30,10 +30,7 @@ export class CrawlerController {
   @Auth('ADMIN')
   @Get('jobs')
   @ApiOperation({ summary: 'List crawl jobs (Admin only)' })
-  async listJobs(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  async listJobs(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.crawlerService.listJobs(
       Number(page) || 1,
       Math.min(Number(limit) || 10, 100),
