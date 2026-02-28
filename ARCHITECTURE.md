@@ -23,9 +23,10 @@
 14. [Search Module — Elasticsearch & AI Semantic](#14-search-module)
 15. [Notification Module — Email & Push](#15-notification-module)
 16. [Crawler Module — Web Scraping](#16-crawler-module)
-17. [Database Schema (Prisma)](#17-database-schema)
-18. [Luong Nghiep Vu Chinh (Business Flows)](#18-luong-nghiep-vu-chinh)
-19. [So Do Tong Quan Ket Noi](#19-so-do-tong-quan-ket-noi)
+17. [Chat Module — AI Chat (WebSocket + REST)](#17-chat-module)
+18. [Database Schema (Prisma)](#18-database-schema)
+19. [Luong Nghiep Vu Chinh (Business Flows)](#19-luong-nghiep-vu-chinh)
+20. [So Do Tong Quan Ket Noi](#20-so-do-tong-quan-ket-noi)
 
 ---
 
@@ -1463,7 +1464,119 @@ RabbitMQ → Backend nhan ket qua → Luu vao PostgreSQL
 
 ---
 
-## 17. Database Schema
+## 17. Chat Module — AI Chat (WebSocket + REST)
+
+### Tong Quan
+
+Chat module cho phep user tro chuyen voi AI assistant qua **WebSocket (Socket.io)** real-time. NestJS backend lam proxy — nhan message tu client, forward sang Python AI service qua **HTTP SSE streaming**, stream response tung chunk ve client.
+
+### Cau Truc Thu Muc
+
+```
+src/modules/chat/
+├── chat.module.ts          # Import HttpModule, JwtModule; providers: Gateway, Service, Repository
+├── chat.gateway.ts         # WebSocket gateway, namespace /chat, JWT auth trong handleConnection
+├── chat.controller.ts      # REST endpoints: GET/DELETE conversations
+├── chat.service.ts         # Xu ly message: tao/verify conversation, goi AI service (SSE stream)
+├── chat.repository.ts      # Prisma CRUD cho ChatConversation va ChatMessage
+└── dto/
+    ├── send-message.dto.ts
+    ├── conversation-response.dto.ts
+    └── message-response.dto.ts
+```
+
+### Prisma Models
+
+```prisma
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model ChatConversation {
+  id        String        @id @default(uuid())
+  userId    String
+  title     String
+  messages  ChatMessage[]
+  user      User          @relation(fields: [userId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ChatMessage {
+  id             String           @id @default(uuid())
+  conversationId String
+  role           MessageRole
+  content        String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @default(now())
+}
+```
+
+### WebSocket Gateway (chat.gateway.ts)
+
+- **Namespace**: `/chat`
+- **Auth**: JWT token validation trong `handleConnection()` — disconnect neu khong hop le
+- **Events**:
+
+| Event | Huong | Payload |
+|-------|-------|---------|
+| `sendMessage` | Client → Server | `{ conversationId?: string, message: string }` |
+| `connected` | Server → Client | `{ message: string }` |
+| `typing` | Server → Client | `{ status: boolean }` |
+| `messageChunk` | Server → Client | `{ conversationId, chunk }` |
+| `messageComplete` | Server → Client | `{ conversationId, content }` |
+| `error` | Server → Client | `{ message: string }` |
+
+### Chat Service (chat.service.ts)
+
+Luong xu ly message:
+1. **Get or create conversation** — Neu khong co conversationId, tao moi voi title tu 50 ky tu dau
+2. **Save user message** — Luu vao ChatMessage voi role USER
+3. **Call AI service** — Goi `POST /ai/chat` qua HTTP SSE streaming:
+   - Chi gui `conversation_id` + message moi nhat (khong gui history)
+   - AI service (LangGraph) dung checkpointing de nho full state
+   - Parse SSE events: `data: {"chunk": "..."}` va `data: [DONE]`
+4. **Stream chunks** — Moi chunk nhan duoc emit qua WebSocket `messageChunk`
+5. **Save assistant response** — Luu full content vao ChatMessage voi role ASSISTANT
+
+### REST Endpoints (chat.controller.ts)
+
+| Method | Path | Auth | Mo ta |
+|--------|------|------|-------|
+| GET | `/api/chat/conversations` | User | Danh sach hoi thoai cua user |
+| GET | `/api/chat/conversations/:id` | User | Chi tiet hoi thoai + messages |
+| DELETE | `/api/chat/conversations/:id` | User | Xoa hoi thoai (cascade xoa messages) |
+
+### Giao Tiep Voi AI Service
+
+```
+Client (Socket.io)
+    │
+    │ emit('sendMessage', { message: "find hotels in Danang" })
+    ▼
+NestJS Chat Gateway
+    │
+    │ POST /ai/chat (HTTP SSE)
+    │ body: { messages: [{role: "user", content: "..."}],
+    │         conversation_id: "uuid", stream: true }
+    ▼
+Python AI Service (LangGraph ReAct Agent)
+    │
+    │ Agent goi tools: search_hotels, get_hotel_details, ...
+    │ Stream response: data: {"chunk": "..."}\n\n
+    ▼
+NestJS Chat Gateway
+    │
+    │ emit('messageChunk', { conversationId, chunk })
+    │ emit('messageComplete', { conversationId, content })
+    ▼
+Client
+```
+
+---
+
+## 18. Database Schema
 
 File: `prisma/schema.prisma`
 
@@ -1524,7 +1637,7 @@ File: `prisma/schema.prisma`
 
 ---
 
-## 18. Luong Nghiep Vu Chinh
+## 19. Luong Nghiep Vu Chinh
 
 ### 18.1. User Dat Phong (Full Flow)
 
@@ -1606,16 +1719,16 @@ Browser              Frontend                 Backend               AI Service
 
 ---
 
-## 19. So Do Tong Quan Ket Noi
+## 20. So Do Tong Quan Ket Noi
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              Docker Compose                              │
 │                                                                          │
-│  ┌─────────────┐    HTTP     ┌─────────────┐    HTTP     ┌────────────┐ │
+│  ┌─────────────┐  HTTP/WS   ┌─────────────┐    HTTP     ┌────────────┐ │
 │  │  Frontend   │←──────────→│   Backend   │←──────────→│ AI Service │ │
-│  │  Port 5173  │   /api/*    │  Port 3000  │  /ai/*     │ Port 8000  │ │
-│  │  (React)    │             │  (NestJS)   │             │ (FastAPI)  │ │
+│  │  Port 5173  │  /api/*    │  Port 3000  │  /ai/*     │ Port 8000  │ │
+│  │  (React)    │  /chat (WS)│  (NestJS)   │  SSE stream│ (FastAPI)  │ │
 │  └─────────────┘             └──────┬──────┘             └─────┬──────┘ │
 │                                     │                          │        │
 │         ┌───────────────────────────┼──────────────────────────┤        │
@@ -1646,9 +1759,10 @@ Luong du lieu:
 4. Browser search → Frontend → Backend → Elasticsearch → result
 5. Backend cache → Redis → Backend (giam tai DB)
 6. LianLian Bank confirm → Backend → update booking status → emit event
+7. Browser → Frontend (Socket.io) → Backend Chat Gateway (WS) → AI Service (SSE) → stream chunks → Client
 ```
 
-### Bang Tom Tat 34 API Endpoints
+### Bang Tom Tat 37 API Endpoints
 
 ```
 Auth (4):
@@ -1701,6 +1815,11 @@ Search (2):
 Crawler (2):
   POST   /api/crawler/trigger              ADMIN    Trigger scraping
   GET    /api/crawler/status               ADMIN    Xem trang thai
+
+Chat (3):
+  GET    /api/chat/conversations           JWT      Danh sach hoi thoai
+  GET    /api/chat/conversations/:id       JWT      Chi tiet + messages
+  DELETE /api/chat/conversations/:id       JWT      Xoa hoi thoai
 
 Health (1):
   GET    /health                           @Public  Health check

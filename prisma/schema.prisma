@@ -27,6 +27,11 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -42,6 +47,7 @@ model User {
 
   bookings      Booking[]
   reviews       Review[]
+  conversations ChatConversation[]
 
   @@map("users")
 }
@@ -178,4 +184,31 @@ model Review {
   @@index([hotelId])
   @@index([rating])
   @@map("reviews")
+}
+
+model ChatConversation {
+  id        String        @id @default(uuid())
+  userId    String        @map("user_id")
+  title     String        @default("New conversation")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String           @id @default(uuid())
+  conversationId String           @map("conversation_id")
+  role           MessageRole
+  content        String
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("chat_messages")
 }

@@ -17,7 +17,8 @@ Phần AI/LLM (gợi ý lịch trình, semantic search, vector embeddings) đư�
 | Layer | Technology |
 |-------|-----------|
 | **Runtime** | Node.js 20 LTS |
-| **Framework** | NestJS 10 (TypeScript strict mode) |
+| **Framework** | NestJS 11 (TypeScript strict mode) |
+| **WebSocket** | Socket.io (@nestjs/platform-socket.io) |
 | **Database** | PostgreSQL 16 |
 | **ORM** | Prisma |
 | **Message Queue** | RabbitMQ |
@@ -273,6 +274,17 @@ travelmind-api/
 │   │   │       ├── email.consumer.ts    # Consume from email queue
 │   │   │       └── push.consumer.ts
 │   │   │
+│   │   ├── chat/                        # 💬 AI Chat (WebSocket + REST)
+│   │   │   ├── chat.module.ts
+│   │   │   ├── chat.gateway.ts        # Socket.io gateway, namespace /chat, JWT auth
+│   │   │   ├── chat.controller.ts     # GET/DELETE conversations
+│   │   │   ├── chat.service.ts        # SSE streaming to Python AI service
+│   │   │   ├── chat.repository.ts     # Prisma CRUD for conversations/messages
+│   │   │   └── dto/
+│   │   │       ├── send-message.dto.ts
+│   │   │       ├── conversation-response.dto.ts
+│   │   │       └── message-response.dto.ts
+│   │   │
 │   │   └── crawler/                     # 🕷️ Price Crawler / Data Sync
 │   │       ├── crawler.module.ts
 │   │       ├── crawler.service.ts       # Schedule + trigger crawl jobs
@@ -433,6 +445,9 @@ AppModule
 │
 ├── NotificationModule
 │   └── depends on: (email provider)
+│
+├── ChatModule
+│   └── depends on: AuthModule (JWT validation for WebSocket)
 │
 └── CrawlerModule
     └── depends on: HotelModule
@@ -900,8 +915,9 @@ travelmind-ai/                   # SEPARATE REPO
 ```
 
 **Giao tiếp**:
-- NestJS → Python AI: REST API (`POST /ai/embeddings`, `POST /ai/itinerary`)
+- NestJS → Python AI: REST API (`POST /ai/embeddings`, `POST /ai/itinerary`, `POST /ai/chat`)
 - Python AI → NestJS: RabbitMQ events (`review.embedding.completed`, `hotel.enriched`)
+- **AI Chat**: `POST /ai/chat` sử dụng LangGraph agent với SSE streaming. Hỗ trợ `conversation_id` để checkpointing và tiếp tục hội thoại
 
 ---
 
@@ -929,4 +945,8 @@ travelmind-ai/                   # SEPARATE REPO
 | `GET` | `/reviews?hotelId=x` | Public | Reviews của hotel |
 | `POST` | `/reviews` | User | Viết review (đã từng booking) |
 | `GET` | `/search` | Public | Full-text search (Elasticsearch) |
+| `GET` | `/chat/conversations` | User | Danh sach hoi thoai AI |
+| `GET` | `/chat/conversations/:id` | User | Chi tiet hoi thoai + messages |
+| `DELETE` | `/chat/conversations/:id` | User | Xoa hoi thoai |
+| `WS` | `/chat` (Socket.io) | User | Real-time AI chat |
 | `GET` | `/health` | Public | Health check |

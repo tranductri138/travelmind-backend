@@ -13,6 +13,7 @@ import { ReviewModule } from './modules/review/review.module.js';
 import { SearchModule } from './modules/search/search.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
 import { CrawlerModule } from './modules/crawler/crawler.module.js';
+import { ChatModule } from './modules/chat/chat.module.js';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CrawlerModule } from './modules/crawler/crawler.module.js';
     SearchModule,
     NotificationModule,
     CrawlerModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

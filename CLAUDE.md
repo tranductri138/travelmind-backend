@@ -1,6 +1,6 @@
 # TravelMind Backend
 
-NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + LianLian Bank (simulated payment).
+NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + Socket.io + LianLian Bank (simulated payment).
 
 ## Quick Reference
 
@@ -18,7 +18,7 @@ Feature-Module pattern (không MVC). Mỗi module tự chứa controller/service
 src/
 ├── core/          # Config, Prisma, Cache, Logger, Health, Queue
 ├── shared/        # Guards, Interceptors, Filters, Decorators, Pipes, Middleware, DTOs, Utils
-└── modules/       # auth, user, hotel, room, booking, payment, review, search, notification, crawler
+└── modules/       # auth, user, hotel, room, booking, payment, review, search, notification, crawler, chat
 ```
 
 ## Key Patterns & Gotchas
@@ -30,6 +30,8 @@ src/
 - **NestJS v11 routes**: Middleware dùng `forRoutes('*path')` thay vì `forRoutes('*')`
 - **Event sync**: Delete hotel/review phải emit event (`hotel.deleted`, `review.deleted`) để AI service xóa embedding khỏi Qdrant
 - **Hotel/Room delete**: Soft delete (set `isActive: false`), có thêm `/permanent` endpoint cho hard delete
+- **Chat WebSocket**: Gateway tại namespace `/chat` dùng Socket.io với JWT auth. Events: `sendMessage`, `messageChunk`, `messageComplete`, `typing`, `connected`, `error`. Service gọi Python AI qua HTTP SSE streaming (`POST /ai/chat`) gửi `conversation_id` + last user message (LangGraph checkpointing on AI side handles history)
+- **Prisma models**: `ChatConversation`, `ChatMessage` (enum `MessageRole`: USER, ASSISTANT) — chạy `npx prisma migrate dev` + `npx prisma generate` sau khi pull
 
 ## Commands
 
@@ -43,7 +45,7 @@ npm run build                          # Build
 npm test                               # Unit tests (20 tests, 6 suites)
 ```
 
-## 33 API Endpoints
+## 36 API Endpoints + WebSocket
 
 Auth: register, login, refresh, logout
 Users: GET/PATCH/DELETE me
@@ -54,6 +56,7 @@ Payments: POST initiate, POST confirm
 Reviews: GET, POST, DELETE
 Search: GET (Elasticsearch)
 Crawler: POST trigger, GET status
+Chat: GET conversations, GET conversation/:id, DELETE conversation/:id + WebSocket `/chat`
 
 ## Events (RabbitMQ routing keys)
 
