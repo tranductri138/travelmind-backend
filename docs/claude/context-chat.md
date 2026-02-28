@@ -120,3 +120,5 @@ model ChatMessage {
 - **Protocol**: HTTP SSE (Server-Sent Events), dùng native `fetch` + `ReadableStream`
 - **Error handling**: nếu AI service lỗi → trả fallback message, vẫn save vào DB
 - **Không dùng WebSocket**: backend → AI là HTTP, chỉ client → backend là WebSocket
+
+**Chi tiết AI-side (LangGraph agent, tools, CAG, streaming)** → xem `ai/docs/claude/context-agent.md`

@@ -18,7 +18,7 @@ interface AuthenticatedSocket extends Socket {
 }
 
 @WebSocketGateway({
-  namespace: '/chat',
+  namespace: '/api/chat',
   cors: { origin: '*' },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -46,7 +46,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      const secret = this.configService.get<string>('JWT_ACCESS_SECRET');
+      const secret = this.configService.get<string>('jwt.accessSecret');
       const payload = this.jwtService.verify(token, { secret });
       client.userId = payload.sub;
 

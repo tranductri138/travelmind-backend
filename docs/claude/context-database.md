@@ -19,8 +19,9 @@
 | RoomAvailability | roomId, date, isAvailable | |
 | ChatConversation | id, userId, title | → ChatMessage |
 | ChatMessage | id, conversationId, role(USER/ASSISTANT), content | |
+| CrawlJob | id, url, status(CrawlStatus), extractReviews, hotelId?, result(Json), error | |
 
-**Enums:** `Role`: USER, ADMIN, HOTEL_OWNER | `BookingStatus`: PENDING, CONFIRMED, CANCELLED, COMPLETED | `PaymentStatus`: PENDING, SUCCEEDED, FAILED, REFUNDED | `MessageRole`: USER, ASSISTANT
+**Enums:** `Role`: USER, ADMIN, HOTEL_OWNER | `BookingStatus`: PENDING, CONFIRMED, CANCELLED, COMPLETED | `PaymentStatus`: PENDING, SUCCEEDED, FAILED, REFUNDED | `MessageRole`: USER, ASSISTANT | `CrawlStatus`: PENDING, RUNNING, COMPLETED, FAILED
 
 ## Patterns
 
@@ -33,9 +34,12 @@
 
 ```bash
 npx prisma migrate dev --name <name>   # Tạo + apply migration
+npx prisma migrate deploy              # Apply pending migrations (CI/prod)
 npx prisma generate                    # Regenerate Prisma Client
 npx prisma studio                      # GUI browser
 npx tsx prisma/seed.ts                 # Seed: admin@travelmind.com / Admin123!
+npx tsx prisma/sync-ai.ts             # Sync hotels/reviews → AI Qdrant
+npm run prisma:setup                   # Full setup: migrate + generate + seed + sync-ai
 ```
 
 ## Prisma Error Codes (PrismaExceptionFilter)

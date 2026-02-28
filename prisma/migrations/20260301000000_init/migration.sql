@@ -7,19 +7,24 @@ CREATE TYPE "BookingStatus" AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPL
 -- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'SUCCEEDED', 'FAILED', 'REFUNDED');
 
+-- CreateEnum
+CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT');
+
+-- CreateEnum
+CREATE TYPE "CrawlStatus" AS ENUM ('PENDING', 'RUNNING', 'COMPLETED', 'FAILED');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "first_name" TEXT NOT NULL,
-    "last_name" TEXT NOT NULL,
     "phone" TEXT,
     "avatar" TEXT,
     "role" "Role" NOT NULL DEFAULT 'USER',
     "refresh_token" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -103,7 +108,7 @@ CREATE TABLE "bookings" (
 CREATE TABLE "payments" (
     "id" TEXT NOT NULL,
     "booking_id" TEXT NOT NULL,
-    "stripe_payment_id" TEXT,
+    "transaction_id" TEXT,
     "amount" DOUBLE PRECISION NOT NULL,
     "currency" TEXT NOT NULL DEFAULT 'USD',
     "status" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
@@ -126,6 +131,43 @@ CREATE TABLE "reviews" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "reviews_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "chat_conversations" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "title" TEXT NOT NULL DEFAULT 'New conversation',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "chat_conversations_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "chat_messages" (
+    "id" TEXT NOT NULL,
+    "conversation_id" TEXT NOT NULL,
+    "role" "MessageRole" NOT NULL,
+    "content" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "chat_messages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "crawl_jobs" (
+    "id" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "status" "CrawlStatus" NOT NULL DEFAULT 'PENDING',
+    "extract_reviews" BOOLEAN NOT NULL DEFAULT false,
+    "hotel_id" TEXT,
+    "result" JSONB,
+    "error" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "crawl_jobs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -180,7 +222,7 @@ CREATE INDEX "bookings_check_in_check_out_idx" ON "bookings"("check_in", "check_
 CREATE UNIQUE INDEX "payments_booking_id_key" ON "payments"("booking_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "payments_stripe_payment_id_key" ON "payments"("stripe_payment_id");
+CREATE UNIQUE INDEX "payments_transaction_id_key" ON "payments"("transaction_id");
 
 -- CreateIndex
 CREATE INDEX "payments_status_idx" ON "payments"("status");
@@ -193,6 +235,15 @@ CREATE INDEX "reviews_rating_idx" ON "reviews"("rating");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "reviews_user_id_hotel_id_key" ON "reviews"("user_id", "hotel_id");
+
+-- CreateIndex
+CREATE INDEX "chat_conversations_user_id_idx" ON "chat_conversations"("user_id");
+
+-- CreateIndex
+CREATE INDEX "chat_messages_conversation_id_idx" ON "chat_messages"("conversation_id");
+
+-- CreateIndex
+CREATE INDEX "crawl_jobs_status_idx" ON "crawl_jobs"("status");
 
 -- AddForeignKey
 ALTER TABLE "rooms" ADD CONSTRAINT "rooms_hotel_id_fkey" FOREIGN KEY ("hotel_id") REFERENCES "hotels"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -214,3 +265,9 @@ ALTER TABLE "reviews" ADD CONSTRAINT "reviews_user_id_fkey" FOREIGN KEY ("user_i
 
 -- AddForeignKey
 ALTER TABLE "reviews" ADD CONSTRAINT "reviews_hotel_id_fkey" FOREIGN KEY ("hotel_id") REFERENCES "hotels"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "chat_conversations" ADD CONSTRAINT "chat_conversations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "chat_conversations"("id") ON DELETE CASCADE ON UPDATE CASCADE;

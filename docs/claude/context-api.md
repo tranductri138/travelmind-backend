@@ -1,6 +1,6 @@
 # Context: API — Endpoints & DTOs
 
-## 36 REST Endpoints + WebSocket `/chat`
+## 38 REST Endpoints + WebSocket `/chat`
 
 ```
 Auth (4):
@@ -48,9 +48,10 @@ Search (2):
   GET  /api/search                  @Public  Full-text (Elasticsearch)
   POST /api/search/semantic         @Public  Semantic (proxy → AI → Qdrant)
 
-Crawler (2):
-  POST /api/crawler/trigger         ADMIN
-  GET  /api/crawler/status          ADMIN
+Crawler (3):
+  POST /api/crawler/trigger         ADMIN   Trigger URL scraping → tạo hotel
+  GET  /api/crawler/jobs            ADMIN   Danh sách jobs (paginated)
+  GET  /api/crawler/jobs/:id        ADMIN   Chi tiết 1 job
 
 Chat (3):
   GET    /api/chat/conversations     JWT

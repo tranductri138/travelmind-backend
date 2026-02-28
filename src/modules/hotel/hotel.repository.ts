@@ -9,11 +9,16 @@ import { NearbyQueryDto } from './dto/nearby-query.dto.js';
 export class HotelRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(id: string): Promise<Hotel | null> {
-    return this.prisma.hotel.findUnique({
+  async findById(id: string): Promise<(Hotel & { priceMin: number }) | null> {
+    const hotel = await this.prisma.hotel.findUnique({
       where: { id },
       include: { rooms: true },
     });
+    if (!hotel) return null;
+    const activeRooms = hotel.rooms.filter((r) => r.isActive);
+    const priceMin =
+      activeRooms.length > 0 ? Math.min(...activeRooms.map((r) => r.price)) : 0;
+    return { ...hotel, priceMin };
   }
 
   async findBySlug(slug: string): Promise<Hotel | null> {
@@ -50,11 +55,27 @@ export class HotelRepository {
         orderBy,
         skip: dto.skip,
         take: dto.limit,
+        include: { rooms: true },
       }),
       this.prisma.hotel.count({ where }),
     ]);
 
-    return new PaginatedResponseDto(hotels, total, dto.page, dto.limit);
+    const hotelsWithPrice = hotels.map((hotel) => {
+      const activeRooms = hotel.rooms.filter((r) => r.isActive);
+      const priceMin =
+        activeRooms.length > 0
+          ? Math.min(...activeRooms.map((r) => r.price))
+          : 0;
+      const { rooms, ...rest } = hotel;
+      return { ...rest, priceMin };
+    });
+
+    return new PaginatedResponseDto(
+      hotelsWithPrice,
+      total,
+      dto.page,
+      dto.limit,
+    );
   }
 
   async findNearby(dto: NearbyQueryDto): Promise<Hotel[]> {

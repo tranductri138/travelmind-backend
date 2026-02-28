@@ -1,17 +1,11 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { CrawlerController } from './crawler.controller.js';
 import { CrawlerService } from './crawler.service.js';
-import { PriceScraperProcessor } from './processors/price-scraper.processor.js';
-import { ReviewScraperProcessor } from './processors/review-scraper.processor.js';
-import { CrawlJobConsumer } from './consumers/crawl-job.consumer.js';
 
 @Module({
+  imports: [HttpModule],
   controllers: [CrawlerController],
-  providers: [
-    CrawlerService,
-    PriceScraperProcessor,
-    ReviewScraperProcessor,
-    CrawlJobConsumer,
-  ],
+  providers: [CrawlerService],
 })
 export class CrawlerModule {}

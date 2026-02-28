@@ -10,9 +10,11 @@ NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsear
 
 ```bash
 docker compose up -d postgres redis    # Start deps
-npx prisma migrate dev                 # Migrations
+npx prisma migrate deploy             # Apply migrations
 npx prisma generate                    # Regenerate client
 npx tsx prisma/seed.ts                 # Seed (admin@travelmind.com / Admin123!)
+npx tsx prisma/sync-ai.ts             # Sync hotels/reviews → AI Qdrant
+npm run prisma:setup                   # Full setup: migrate + generate + seed + sync-ai
 npm run start:dev                      # Dev (watch mode, port 3000)
 npm test                               # Unit tests (20 tests, 6 suites)
 npm run build                          # Build

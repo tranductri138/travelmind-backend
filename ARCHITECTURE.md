@@ -1419,49 +1419,72 @@ sendPushNotification(userId, title, body) {
 
 ---
 
-## 16. Crawler Module
+## 16. Crawler Module — URL Scraping → Hotel Creation
 
 File: `src/modules/crawler/`
 
 ```
 crawler/
-├── crawler.module.ts
-├── crawler.controller.ts    ← 2 routes (ADMIN only)
-├── crawler.service.ts       ← Trigger + status
-├── processors/
-│   ├── price-scraper.processor.ts   ← (stub)
-│   └── review-scraper.processor.ts  ← (stub)
-└── consumers/
-    └── crawl-job.consumer.ts  ← (stub)
+├── crawler.module.ts        ← Import HttpModule
+├── crawler.controller.ts    ← 3 routes (ADMIN only)
+├── crawler.service.ts       ← Trigger + background process + job queries
+└── dto/
+    └── trigger-crawl.dto.ts ← { url, extractReviews? }
 ```
 
 **Routes:**
 | Method | Path | Auth | Mo ta |
 |--------|------|------|-------|
-| POST | `/api/crawler/trigger` | @Auth(ADMIN) | Trigger scraping job |
-| GET | `/api/crawler/status` | @Auth(ADMIN) | Xem trang thai crawler |
+| POST | `/api/crawler/trigger` | @Auth(ADMIN) | Tao CrawlJob + bat dau scraping |
+| GET | `/api/crawler/jobs` | @Auth(ADMIN) | Danh sach jobs (paginated) |
+| GET | `/api/crawler/jobs/:id` | @Auth(ADMIN) | Chi tiet 1 job |
+
+**Prisma Model: CrawlJob**
+```prisma
+model CrawlJob {
+  id             String      @id @default(uuid())
+  url            String
+  status         CrawlStatus @default(PENDING)  // PENDING → RUNNING → COMPLETED | FAILED
+  extractReviews Boolean     @default(false)
+  hotelId        String?     // linked hotel sau khi scrape xong
+  result         Json?       // raw extracted data tu AI service
+  error          String?     // error message neu FAILED
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+```
 
 **Cach hoat dong:**
-Backend chi la nguoi **trigger**. Scraping thuc te chay o AI service (Python + Playwright).
+Backend goi **truc tiep AI service qua HTTP** (khong qua RabbitMQ). Xu ly background, frontend poll ket qua.
 
 ```
 Admin: POST /api/crawler/trigger { url: "https://booking.com/hotel/abc" }
     │
-    ├─ CrawlerService.triggerPriceCrawl()
-    │   → Publish event 'crawler.job' len RabbitMQ
-    │     { url: "https://...", extract_reviews: true, job_id: "xyz" }
+    ├─ CrawlerService.triggerCrawl()
+    │   1. Tao CrawlJob (PENDING) trong PostgreSQL
+    │   2. Bat dau xu ly background (fire-and-forget)
+    │   3. Return job ngay lap tuc (frontend bat dau poll)
+    │
+    ▼ (Background processing — khong block response)
+CrawlerService.processCrawlJob()
+    │
+    ├─ Update status → RUNNING
+    ├─ Goi AI service: POST http://ai:8000/scraping/extract
+    │   body: { url, extract_reviews }
+    │   (Playwright scrape → BeautifulSoup → LLM extract → ~10-30s)
+    │
+    ├─ AI tra ve: { hotel: { name, city, stars, ... }, reviews: [...] }
+    │
+    ├─ Tao Hotel moi trong PostgreSQL (generate slug tu name)
+    ├─ Link hotelId vao CrawlJob
+    ├─ Update status → COMPLETED
+    ├─ Emit event 'hotel.created' → EventBridge → RabbitMQ → Qdrant sync
+    │
+    │ Neu loi:
+    ├─ Update status → FAILED, luu error message
     │
     ▼
-RabbitMQ → Queue "ai.crawler.job" → AI Service
-    │
-    ├─ Playwright mo trinh duyet headless
-    ├─ Vao trang web, doi load xong
-    ├─ BeautifulSoup loc HTML → text sach
-    ├─ LLM trich xuat: { name, city, stars, amenities, ... }
-    ├─ Publish event 'crawler.completed' { hotel, reviews }
-    │
-    ▼
-RabbitMQ → Backend nhan ket qua → Luu vao PostgreSQL
+Frontend: GET /api/crawler/jobs/:id (poll moi 3s cho den COMPLETED/FAILED)
 ```
 
 ---
@@ -1589,12 +1612,11 @@ File: `prisma/schema.prisma`
 │ id           │      1:N      │ id           │
 │ email        │──────────────→│ userId       │
 │ password     │               │ roomId ──────│──┐
-│ firstName    │               │ checkIn      │  │
-│ lastName     │               │ checkOut     │  │
-│ role (enum)  │               │ totalPrice   │  │
-│ refreshToken │               │ status (enum)│  │
-└──────────────┘               └──────┬───────┘  │
-       │                              │           │
+│ name         │               │ checkIn      │  │
+│ role (enum)  │               │ checkOut     │  │
+│ refreshToken │               │ totalPrice   │  │
+└──────────────┘               │ status (enum)│  │
+       │                       └──────┬───────┘  │
        │ 1:N                   1:1    │           │
        ▼                              ▼           │
 ┌──────────────┐               ┌──────────────┐  │
@@ -1623,19 +1645,36 @@ File: `prisma/schema.prisma`
 │ isActive     │                                │ date             │
 └──────────────┘                                │ isAvailable      │
                                                 └──────────────────┘
+┌──────────────────┐          ┌──────────────────┐
+│ ChatConversation │ 1:N      │   CrawlJob       │
+│                  │────────┐ │                  │
+│ id               │        │ │ id               │
+│ userId           │        ▼ │ url              │
+│ title            │  ┌───────────┐ │ status (enum)  │
+└──────────────────┘  │ChatMessage│ │ extractReviews │
+                      │           │ │ hotelId        │
+                      │ id        │ │ result (JSON)  │
+                      │ convId    │ │ error          │
+                      │ role      │ └──────────────────┘
+                      │ content   │
+                      └───────────┘
 ```
 
 **Enums:**
 - `Role`: USER, ADMIN, HOTEL_OWNER
 - `BookingStatus`: PENDING, CONFIRMED, CANCELLED, COMPLETED
 - `PaymentStatus`: PENDING, SUCCEEDED, FAILED, REFUNDED
+- `MessageRole`: USER, ASSISTANT
+- `CrawlStatus`: PENDING, RUNNING, COMPLETED, FAILED
 
 **Quan he:**
-- User → nhieu Booking, nhieu Review
+- User → nhieu Booking, nhieu Review, nhieu ChatConversation
 - Hotel → nhieu Room, nhieu Review
 - Room → nhieu Booking, nhieu RoomAvailability
 - Booking → 1 Payment
 - Review: unique(userId, hotelId) — 1 user chi review 1 hotel 1 lan
+- ChatConversation → nhieu ChatMessage (cascade delete)
+- CrawlJob: doc lap, luu hotelId sau khi tao Hotel thanh cong
 
 ---
 
@@ -1762,9 +1801,10 @@ Luong du lieu:
 5. Backend cache → Redis → Backend (giam tai DB)
 6. LianLian Bank confirm → Backend → update booking status → emit event
 7. Browser → Frontend (Socket.io) → Backend Chat Gateway (WS) → AI Service (SSE) → stream chunks → Client
+8. Crawler: Admin trigger → Backend → HTTP POST AI /scraping/extract → AI scrape → Backend tao Hotel → emit hotel.created → Qdrant
 ```
 
-### Bang Tom Tat 37 API Endpoints
+### Bang Tom Tat 38 API Endpoints
 
 ```
 Auth (4):
@@ -1814,9 +1854,10 @@ Search (2):
   GET    /api/search                       @Public  Full-text (ES)
   POST   /api/search/semantic              @Public  Semantic (AI proxy)
 
-Crawler (2):
-  POST   /api/crawler/trigger              ADMIN    Trigger scraping
-  GET    /api/crawler/status               ADMIN    Xem trang thai
+Crawler (3):
+  POST   /api/crawler/trigger              ADMIN    Trigger URL scraping → tao hotel
+  GET    /api/crawler/jobs                 ADMIN    Danh sach jobs (paginated)
+  GET    /api/crawler/jobs/:id             ADMIN    Chi tiet 1 job
 
 Chat (3):
   GET    /api/chat/conversations           JWT      Danh sach hoi thoai
@@ -1833,10 +1874,14 @@ Health (1):
 # Start dependencies
 docker compose up -d postgres redis rabbitmq
 
-# Database setup
-npx prisma migrate dev     # Tao bang
+# Database setup (full — dung khi setup lan dau)
+npm run prisma:setup       # migrate deploy + generate + seed + sync AI
+
+# Hoac chay tung buoc:
+npx prisma migrate deploy  # Apply migrations
 npx prisma generate        # Tao Prisma Client
 npx tsx prisma/seed.ts     # Seed data (admin@travelmind.com / Admin123!)
+npx tsx prisma/sync-ai.ts  # Sync hotels/reviews → AI service Qdrant
 
 # Start server
 npm run start:dev          # Watch mode, port 3000

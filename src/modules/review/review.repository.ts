@@ -20,7 +20,7 @@ export class ReviewRepository {
         where,
         include: {
           user: {
-            select: { id: true, firstName: true, lastName: true, avatar: true },
+            select: { id: true, name: true, avatar: true },
           },
         },
         orderBy: { createdAt: 'desc' },

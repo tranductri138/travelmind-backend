@@ -22,7 +22,7 @@ Service.method()
 | `booking.created` | BookingService.create() | Embed |
 | `booking.confirmed` | PaymentService.confirm() | Update embedding |
 | `booking.cancelled` | BookingService.cancel() | Xóa embedding |
-| `crawler.job` | CrawlerService.trigger() | Playwright scrape URL |
+| `crawler.job` | ~~Không còn dùng~~ — Crawler giờ gọi trực tiếp HTTP `POST /scraping/extract` | Chi tiết AI-side → `ai/docs/claude/context-scraping.md` |
 | `user.registered` | AuthService.register() | Gửi welcome email |
 
 ## RabbitMQ Config

@@ -14,12 +14,20 @@ import { SearchModule } from './modules/search/search.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
 import { CrawlerModule } from './modules/crawler/crawler.module.js';
 import { ChatModule } from './modules/chat/chat.module.js';
+import { UploadModule } from './modules/upload/upload.module.js';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     CoreModule,
     EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/',
+      exclude: ['/api/{*path}', '/health'],
+    }),
     SharedModule,
     AuthModule,
     UserModule,
@@ -32,6 +40,7 @@ import { ChatModule } from './modules/chat/chat.module.js';
     NotificationModule,
     CrawlerModule,
     ChatModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

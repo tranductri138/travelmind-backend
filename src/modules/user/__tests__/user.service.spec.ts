@@ -29,7 +29,7 @@ describe('UserService', () => {
 
   describe('findById', () => {
     it('should return user if found', async () => {
-      const user = { id: '1', email: 'test@test.com', firstName: 'Test' };
+      const user = { id: '1', email: 'test@test.com', name: 'Test' };
       mockUserRepository.findById.mockResolvedValue(user);
 
       const result = await service.findById('1');
@@ -44,15 +44,15 @@ describe('UserService', () => {
 
   describe('updateProfile', () => {
     it('should update and return user', async () => {
-      const user = { id: '1', email: 'test@test.com', firstName: 'Test' };
+      const user = { id: '1', email: 'test@test.com', name: 'Test' };
       mockUserRepository.findById.mockResolvedValue(user);
       mockUserRepository.update.mockResolvedValue({
         ...user,
-        firstName: 'Updated',
+        name: 'Updated',
       });
 
-      const result = await service.updateProfile('1', { firstName: 'Updated' });
-      expect(result.firstName).toBe('Updated');
+      const result = await service.updateProfile('1', { name: 'Updated' });
+      expect(result.name).toBe('Updated');
     });
   });
 });

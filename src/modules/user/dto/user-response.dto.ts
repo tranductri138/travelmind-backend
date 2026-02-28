@@ -13,11 +13,7 @@ export class UserResponseDto {
 
   @Expose()
   @ApiProperty()
-  firstName: string;
-
-  @Expose()
-  @ApiProperty()
-  lastName: string;
+  name: string;
 
   @Expose()
   @ApiPropertyOptional()

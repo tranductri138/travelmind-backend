@@ -10,6 +10,7 @@ src/
 ├── shared/     # Guards, Interceptors, Filters, Decorators, Pipes, Middleware, Utils
 └── modules/    # auth, user, hotel, room, booking, payment, review,
                 # search, notification, crawler, chat  (11 modules)
+                # Crawler: HTTP → AI /scraping/extract (không dùng RabbitMQ)
 ```
 
 ```
