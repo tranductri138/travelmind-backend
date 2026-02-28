@@ -1,37 +1,10 @@
 # TravelMind Backend
 
-NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + Socket.io + LianLian Bank (simulated payment).
+NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + Socket.io + LianLian Bank (simulated).
 
-## Quick Reference
-
-- **Node**: v20.18.3, **npm**: 10.8.2
-- **Module**: CommonJS (tsconfig `module: commonjs`), nhưng import dùng `.js` extension
-- **Strict mode**: ON, `strictPropertyInitialization: false` (cho DTO decorators)
-- **Port**: 3000, prefix `/api`, health tại `/health`, Swagger tại `/api/docs`
-- **DB**: `postgresql://travelmind:secret@localhost:5432/travelmind`
-
-## Architecture
-
-Feature-Module pattern (không MVC). Mỗi module tự chứa controller/service/repository/dto/events.
-
-```
-src/
-├── core/          # Config, Prisma, Cache, Logger, Health, Queue
-├── shared/        # Guards, Interceptors, Filters, Decorators, Pipes, Middleware, DTOs, Utils
-└── modules/       # auth, user, hotel, room, booking, payment, review, search, notification, crawler, chat
-```
-
-## Key Patterns & Gotchas
-
-- **Global guards**: `JwtAuthGuard` + `RolesGuard` đăng ký qua `APP_GUARD` trong `AuthModule` — mọi route mặc định cần auth, dùng `@Public()` để bypass
-- **ESM packages**: KHÔNG dùng ESM-only packages (project là CommonJS). Nếu cần UUID dùng `crypto.randomUUID()` (Node built-in)
-- **Prisma types**: Sau khi sửa `schema.prisma`, chạy `npx prisma generate` rồi restart TS server trong IDE
-- **Jest**: Cần `moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" }` để resolve `.js` imports
-- **NestJS v11 routes**: Middleware dùng `forRoutes('*path')` thay vì `forRoutes('*')`
-- **Event sync**: Delete hotel/review phải emit event (`hotel.deleted`, `review.deleted`) để AI service xóa embedding khỏi Qdrant
-- **Hotel/Room delete**: Soft delete (set `isActive: false`), có thêm `/permanent` endpoint cho hard delete
-- **Chat WebSocket**: Gateway tại namespace `/chat` dùng Socket.io với JWT auth. Events: `sendMessage`, `messageChunk`, `messageComplete`, `typing`, `connected`, `error`. Service gọi Python AI qua HTTP SSE streaming (`POST /ai/chat`) gửi `conversation_id` + last user message (LangGraph checkpointing on AI side handles history)
-- **Prisma models**: `ChatConversation`, `ChatMessage` (enum `MessageRole`: USER, ASSISTANT) — chạy `npx prisma migrate dev` + `npx prisma generate` sau khi pull
+- **Node** v20.18.3 | **CommonJS** (import dùng `.js` extension) | **Strict** ON
+- **Port** 3000 | prefix `/api` | health `/health` | Swagger `/api/docs`
+- **DB** `postgresql://travelmind:secret@localhost:5432/travelmind`
 
 ## Commands
 
@@ -39,40 +12,30 @@ src/
 docker compose up -d postgres redis    # Start deps
 npx prisma migrate dev                 # Migrations
 npx prisma generate                    # Regenerate client
-npx tsx prisma/seed.ts                 # Seed data (admin@travelmind.com / Admin123!)
-npm run start:dev                      # Dev server (watch mode)
-npm run build                          # Build
+npx tsx prisma/seed.ts                 # Seed (admin@travelmind.com / Admin123!)
+npm run start:dev                      # Dev (watch mode, port 3000)
 npm test                               # Unit tests (20 tests, 6 suites)
+npm run build                          # Build
 ```
 
-## 36 API Endpoints + WebSocket
+## Quan Trọng
 
-Auth: register, login, refresh, logout
-Users: GET/PATCH/DELETE me
-Hotels: GET (search, nearby, :id), POST, PATCH, DELETE, DELETE permanent
-Rooms: GET (list, availability), POST, DELETE, DELETE permanent
-Bookings: GET (list, :id), POST, PATCH cancel, DELETE
-Payments: POST initiate, POST confirm
-Reviews: GET, POST, DELETE
-Search: GET (Elasticsearch)
-Crawler: POST trigger, GET status
-Chat: GET conversations, GET conversation/:id, DELETE conversation/:id + WebSocket `/chat`
+> **KHÔNG đọc `ARCHITECTURE.md` hay `README.md`** — đó là tài liệu cho người đọc.
+> Dùng các file dưới đây thay thế.
 
-## Events (RabbitMQ routing keys)
+## Context Files — Load Khi Cần
 
-```
-hotel.created, hotel.updated, hotel.deleted  → AI sync embedding
-review.created, review.deleted               → AI sync embedding
-booking.created, booking.confirmed, booking.cancelled → notification, analytics
-crawler.job → AI scraping
-user.registered → welcome email
-```
-
-## Monorepo Structure
+| File | Dùng khi |
+|------|----------|
+| `docs/claude/context-general.md` | Luôn load — architecture, patterns, gotchas |
+| `docs/claude/context-auth.md` | Làm auth, JWT, guards, permissions |
+| `docs/claude/context-database.md` | Làm Prisma, schema, migrations |
+| `docs/claude/context-api.md` | Làm endpoints, DTOs, controllers |
+| `docs/claude/context-events.md` | Làm RabbitMQ, events, queue |
+| `docs/claude/context-hotel-room.md` | Làm hotel, room, availability, geo search |
+| `docs/claude/context-booking.md` | Làm booking saga, payment flow |
+| `docs/claude/context-chat.md` | Làm chat WebSocket, SSE streaming, AI integration |
 
 ```
-TRAVELMIND/
-├── backend/    ← This repo (NestJS, git tracked)
-├── ai/         ← Python FastAPI + Qdrant (not git tracked yet)
-└── frontend/   ← React SPA (not git tracked yet)
+"Đọc docs/claude/context-auth.md rồi help me fix JWT refresh"
 ```

@@ -105,7 +105,8 @@ src/
     ├── review/          ← Review CRUD + rating aggregation
     ├── search/          ← Elasticsearch + AI semantic proxy
     ├── notification/    ← Email + push (template-based)
-    └── crawler/         ← Trigger web scraping jobs
+    ├── crawler/         ← Trigger web scraping jobs
+    └── chat/            ← AI Chat (WebSocket + REST)
 ```
 
 **Pattern: FEATURE-MODULE** (khong phai MVC)
@@ -157,7 +158,7 @@ File: `src/app.module.ts`
     EventEmitterModule.forRoot(),                      // 2. Event bus noi bo (in-memory)
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]), // 3. Rate limit: 100 req/phut
     SharedModule,                                      // 4. Guards, filters, interceptors
-    AuthModule,                                        // 5-14. Feature modules
+    AuthModule,                                        // 5-15. Feature modules
     UserModule,
     HotelModule,
     RoomModule,
@@ -167,6 +168,7 @@ File: `src/app.module.ts`
     SearchModule,
     NotificationModule,
     CrawlerModule,
+    ChatModule,
   ],
 })
 export class AppModule {}
@@ -482,7 +484,7 @@ export class CoreModule {}
 
 ### 5.1. Config (src/core/config/)
 
-8 file config, moi file dung `registerAs()` de tao namespace:
+7 file config, moi file dung `registerAs()` de tao namespace:
 
 | File | Namespace | VD su dung |
 |------|-----------|------------|
@@ -1639,7 +1641,7 @@ File: `prisma/schema.prisma`
 
 ## 19. Luong Nghiep Vu Chinh
 
-### 18.1. User Dat Phong (Full Flow)
+### 19.1. User Dat Phong (Full Flow)
 
 ```
 Browser                Backend                   LianLian Bank         AI Service
@@ -1668,7 +1670,7 @@ Browser                Backend                   LianLian Bank         AI Servic
   │←── { status } ───────│                            │                     │
 ```
 
-### 18.2. Tao Hotel → AI Embedding
+### 19.2. Tao Hotel → AI Embedding
 
 ```
 Admin                  Backend                  RabbitMQ              AI Service
@@ -1696,7 +1698,7 @@ Admin                  Backend                  RabbitMQ              AI Service
   │                      │                        │           semantic search!
 ```
 
-### 18.3. Semantic Search
+### 19.3. Semantic Search
 
 ```
 Browser              Frontend                 Backend               AI Service
@@ -1840,6 +1842,6 @@ npx tsx prisma/seed.ts     # Seed data (admin@travelmind.com / Admin123!)
 npm run start:dev          # Watch mode, port 3000
 
 # Test
-npm test                   # 17 tests, 6 suites
+npm test                   # 20 tests, 6 suites
 npm run build              # Build TypeScript → JavaScript
 ```

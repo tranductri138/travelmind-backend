@@ -1,0 +1,11 @@
+# Tài liệu cho người đọc — Claude dùng docs/claude/ thay thế
+ARCHITECTURE.md
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Generated files
+prisma/generated/
