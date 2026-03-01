@@ -23,16 +23,12 @@ Phần AI/LLM (gợi ý lịch trình, semantic search, vector embeddings) đư�
 | **ORM** | Prisma |
 | **Message Queue** | RabbitMQ |
 | **Cache** | Redis 7 |
-| **Search Engine** | Elasticsearch 8 (phần của ELK) |
-| **Logging** | ELK Stack (Elasticsearch + Logstash + Kibana) |
 | **Payment** | LianLian Bank (simulated) |
 | **Auth** | JWT (access + refresh token) + Passport |
 | **Validation** | class-validator + class-transformer |
 | **Documentation** | Swagger (OpenAPI 3.0) |
 | **Testing** | Jest (unit + e2e) |
 | **Containerization** | Docker + Docker Compose |
-| **Orchestration** | Kubernetes (production) |
-| **CI/CD** | GitHub Actions |
 
 ---
 
@@ -67,20 +63,18 @@ travelmind-api/
 │   │   │   └── consumers/              
 │   │   │       └── base.consumer.ts     # Abstract consumer với retry + DLQ
 │   │   ├── logger/
-│   │   │   ├── logger.module.ts         # Custom Logger → ELK
-│   │   │   ├── logger.service.ts        # Structured JSON logging
-│   │   │   └── elk.transport.ts         # Transport logs → Logstash
+│   │   │   ├── logger.module.ts         # Custom Logger
+│   │   │   └── logger.service.ts        # Structured JSON logging
 │   │   ├── config/
 │   │   │   ├── config.module.ts         # @nestjs/config + validation
 │   │   │   ├── app.config.ts            # App config (port, env)
 │   │   │   ├── database.config.ts       # DB connection config
 │   │   │   ├── redis.config.ts
 │   │   │   ├── rabbitmq.config.ts
-│   │   │   ├── jwt.config.ts
-│   │   │   └── elk.config.ts
+│   │   │   └── jwt.config.ts
 │   │   └── health/
 │   │       ├── health.module.ts         # @nestjs/terminus health checks
-│   │       └── health.controller.ts     # GET /health — DB, Redis, RabbitMQ, ELK
+│   │       └── health.controller.ts     # GET /health — DB, Redis, RabbitMQ
 │   │
 │   │── ─────────────────────────────────
 │   │   SHARED (dùng chung giữa modules)
@@ -114,7 +108,7 @@ travelmind-api/
 │   │   │   └── parse-sort.pipe.ts           # ?sort=price:asc,rating:desc
 │   │   ├── middleware/
 │   │   │   ├── correlation-id.middleware.ts  # X-Correlation-ID cho tracing
-│   │   │   └── request-logger.middleware.ts  # HTTP request log → ELK
+│   │   │   └── request-logger.middleware.ts  # HTTP request log
 │   │   ├── dto/
 │   │   │   ├── pagination.dto.ts            # PaginationQueryDto (page, limit, cursor)
 │   │   │   ├── paginated-response.dto.ts    # PaginatedResponse<T>
@@ -181,8 +175,7 @@ travelmind-api/
 │   │   │   │   ├── hotel-created.event.ts
 │   │   │   │   └── hotel-price-updated.event.ts
 │   │   │   ├── consumers/
-│   │   │   │   ├── price-sync.consumer.ts       # Consume price updates từ crawler
-│   │   │   │   └── hotel-indexing.consumer.ts    # Sync hotel data → Elasticsearch
+│   │   │   │   └── price-sync.consumer.ts       # Consume price updates từ crawler
 │   │   │   └── __tests__/
 │   │   │       ├── hotel.service.spec.ts
 │   │   │       ├── hotel.repository.spec.ts
@@ -249,17 +242,13 @@ travelmind-api/
 │   │   │   └── __tests__/
 │   │   │       └── review.service.spec.ts
 │   │   │
-│   │   ├── search/                      # 🔍 Search (Elasticsearch)
+│   │   ├── search/                      # 🔍 Search (PostgreSQL + AI Semantic)
 │   │   │   ├── search.module.ts
 │   │   │   ├── search.controller.ts     # GET /search?q=...&filters=...
-│   │   │   ├── search.service.ts        # Elasticsearch queries
-│   │   │   ├── elasticsearch.provider.ts # ES client factory
+│   │   │   ├── search.service.ts        # PostgreSQL keyword + AI semantic search
 │   │   │   ├── dto/
 │   │   │   │   ├── search-query.dto.ts
 │   │   │   │   └── search-result.dto.ts
-│   │   │   ├── indices/
-│   │   │   │   ├── hotel.index.ts       # Index mapping definition
-│   │   │   │   └── review.index.ts
 │   │   │   └── __tests__/
 │   │   │       └── search.service.spec.ts
 │   │   │
@@ -315,22 +304,9 @@ travelmind-api/
 │
 ├── docker/
 │   ├── Dockerfile                       # Multi-stage build
-│   ├── Dockerfile.dev                   # Dev with hot reload
-│   └── elk/
-│       ├── logstash.conf               # Logstash pipeline config
-│       ├── elasticsearch.yml
-│       └── kibana.yml
+│   └── Dockerfile.dev                   # Dev with hot reload
 │
-├── k8s/
-│   ├── namespace.yaml
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   ├── hpa.yaml
-│   ├── configmap.yaml
-│   ├── secrets.yaml
-│   └── ingress.yaml
-│
-├── docker-compose.yml                   # Local dev: API + PG + Redis + RabbitMQ + ELK
+├── docker-compose.yml                   # Local dev: API + PG + Redis + RabbitMQ + Qdrant
 ├── docker-compose.test.yml              # E2E test environment
 │
 ├── .env.example
@@ -407,7 +383,7 @@ AppModule
 │   ├── PrismaModule          # Database connection
 │   ├── CacheModule            # Redis
 │   ├── RabbitMQModule         # Message queue
-│   ├── LoggerModule           # Structured logging → ELK
+│   ├── LoggerModule           # Structured JSON logging
 │   ├── ConfigModule           # Environment config
 │   └── HealthModule           # Health checks
 │
@@ -441,7 +417,7 @@ AppModule
 │   └── depends on: HotelModule
 │
 ├── SearchModule
-│   └── depends on: (Elasticsearch client)
+│   └── depends on: PrismaModule, HttpModule (AI service)
 │
 ├── NotificationModule
 │   └── depends on: (email provider)
@@ -490,10 +466,8 @@ AppModule
                         │  │                    ──► room.availability.queue   │
                         │  │                                   │   │
                         │  │  review.created ──► rating.aggregator.queue      │
-                        │  │                 ──► search.indexing.queue        │
                         │  │                                   │   │
-                        │  │  hotel.price.updated ──► search.indexing.queue   │
-                        │  │                      ──► cache.invalidate.queue  │
+                        │  │  hotel.price.updated ──► cache.invalidate.queue  │
                         │  │                                   │   │
                         │  │  crawler.job ──► crawl.processing.queue          │
                         │  │                                   │   │
@@ -529,7 +503,7 @@ BookingService.create()
  Consumer   Consumer                  Consumer
     │         │                           │
  Send      Update room                Track booking
- confirm   isAvailable=false          metrics → ELK
+ confirm   isAvailable=false          metrics
  email
               │
               ▼ (User confirms payment)
@@ -576,126 +550,6 @@ export class RabbitMQModule {
       exports: [ClientsModule],
       global: true,
     };
-  }
-}
-```
-
----
-
-## 📊 ELK Stack — Logging & Monitoring
-
-### Architecture
-
-```
-NestJS App                   ELK Stack
-┌──────────┐
-│ LoggerSvc│──JSON logs──►  Logstash (port 5044)
-│          │                    │
-│ Request  │                    │ Parse, filter, enrich
-│ Middleware│                    │ Add: correlationId, env, service
-│          │                    ▼
-│ Exception│              Elasticsearch (port 9200)
-│ Filter   │                    │
-└──────────┘                    │ Index: travelmind-logs-YYYY.MM.DD
-                                ▼
-                          Kibana (port 5601)
-                                │
-                          ┌─────┴──────────────────────┐
-                          │ Dashboards:                  │
-                          │ • Request rate & latency     │
-                          │ • Error rate by endpoint     │
-                          │ • Slow queries (>500ms)      │
-                          │ • Booking funnel analytics   │
-                          │ • Queue consumer lag         │
-                          │ • 4xx/5xx breakdown          │
-                          └────────────────────────────┘
-```
-
-### Structured Log Format
-
-Mọi log từ app đều output dạng JSON để Logstash parse:
-
-```typescript
-// Mỗi log entry có format:
-{
-  "@timestamp": "2026-02-28T10:30:00.000Z",
-  "level": "info",                          // info | warn | error | debug
-  "service": "travelmind-api",
-  "environment": "production",
-  "correlationId": "uuid-v4",              // Trace xuyên suốt 1 request
-  "context": "BookingService",             // Class name
-  "message": "Booking created",
-  "metadata": {
-    "bookingId": "abc123",
-    "userId": "user456",
-    "hotelId": "hotel789",
-    "duration": 45                          // ms
-  }
-}
-
-// Error log bổ sung:
-{
-  "level": "error",
-  "message": "Payment failed",
-  "error": {
-    "name": "PaymentError",
-    "message": "Transaction not found",
-    "code": "payment_failed",
-    "stack": "..."                          // Chỉ trong development
-  },
-  "request": {
-    "method": "POST",
-    "url": "/bookings",
-    "ip": "1.2.3.4",
-    "userAgent": "..."
-  }
-}
-```
-
-### Logstash Pipeline
-
-```ruby
-# docker/elk/logstash.conf
-input {
-  tcp {
-    port => 5044
-    codec => json
-  }
-}
-
-filter {
-  # Parse timestamp
-  date {
-    match => ["@timestamp", "ISO8601"]
-  }
-
-  # Enrich with geo data from IP
-  if [request][ip] {
-    geoip {
-      source => "[request][ip]"
-      target => "geo"
-    }
-  }
-
-  # Tag slow requests
-  if [metadata][duration] and [metadata][duration] > 500 {
-    mutate {
-      add_tag => ["slow_request"]
-    }
-  }
-
-  # Tag errors
-  if [level] == "error" {
-    mutate {
-      add_tag => ["error"]
-    }
-  }
-}
-
-output {
-  elasticsearch {
-    hosts => ["elasticsearch:9200"]
-    index => "travelmind-logs-%{+YYYY.MM.dd}"
   }
 }
 ```
@@ -759,7 +613,6 @@ services:
       - DATABASE_URL=postgresql://travelmind:secret@postgres:5432/travelmind
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
 
   postgres:
     image: postgres:16-alpine
@@ -797,40 +650,8 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
 
-  # ── ELK Stack ──
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.0
-    volumes:
-      - ./docker/elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    ports:
-      - "5044:5044"
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-
 volumes:
   pgdata:
-  esdata:
 ```
 
 ---
@@ -847,7 +668,7 @@ npm install
 cp .env.example .env.development
 
 # 3. Start infrastructure
-docker compose up -d postgres redis rabbitmq elasticsearch logstash kibana
+docker compose up -d postgres redis rabbitmq
 
 # 4. Run migrations & seed
 npx prisma migrate dev
@@ -860,8 +681,6 @@ npm run start:dev
 # API:          http://localhost:3000
 # Swagger:      http://localhost:3000/api/docs
 # RabbitMQ UI:  http://localhost:15672  (guest/guest)
-# Kibana:       http://localhost:5601
-# Elasticsearch: http://localhost:9200
 ```
 
 ---
@@ -944,7 +763,7 @@ travelmind-ai/                   # SEPARATE REPO
 | `POST` | `/payments/confirm/:transactionId` | User | Confirm LianLian Bank payment |
 | `GET` | `/reviews?hotelId=x` | Public | Reviews của hotel |
 | `POST` | `/reviews` | User | Viết review (đã từng booking) |
-| `GET` | `/search` | Public | Full-text search (Elasticsearch) |
+| `GET` | `/search` | Public | Full-text search (PostgreSQL + AI semantic) |
 | `GET` | `/chat/conversations` | User | Danh sach hoi thoai AI |
 | `GET` | `/chat/conversations/:id` | User | Chi tiet hoi thoai + messages |
 | `DELETE` | `/chat/conversations/:id` | User | Xoa hoi thoai |

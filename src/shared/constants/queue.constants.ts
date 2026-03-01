@@ -22,7 +22,6 @@ export const QUEUES = {
   NOTIFICATION_EMAIL: 'notification.email.queue',
   PAYMENT_REFUND: 'payment.refund.queue',
   RATING_AGGREGATOR: 'rating.aggregator.queue',
-  SEARCH_INDEXING: 'search.indexing.queue',
   CACHE_INVALIDATE: 'cache.invalidate.queue',
   CRAWL_PROCESSING: 'crawl.processing.queue',
 } as const;

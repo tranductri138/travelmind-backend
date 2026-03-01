@@ -6,7 +6,6 @@ import { databaseConfig } from './database.config.js';
 import { redisConfig } from './redis.config.js';
 import { jwtConfig } from './jwt.config.js';
 import { rabbitmqConfig } from './rabbitmq.config.js';
-import { elkConfig } from './elk.config.js';
 import { aiConfig } from './ai.config.js';
 
 @Module({
@@ -19,7 +18,6 @@ import { aiConfig } from './ai.config.js';
         redisConfig,
         jwtConfig,
         rabbitmqConfig,
-        elkConfig,
         aiConfig,
       ],
       validationSchema: Joi.object({
@@ -35,10 +33,6 @@ import { aiConfig } from './ai.config.js';
         JWT_REFRESH_SECRET: Joi.string().required(),
         JWT_REFRESH_EXPIRY: Joi.string().default('7d'),
         RABBITMQ_URL: Joi.string().default('amqp://guest:guest@localhost:5672'),
-        // LianLian Bank — no external keys needed (simulated)
-        ELASTICSEARCH_URL: Joi.string().default('http://localhost:9200'),
-        LOGSTASH_HOST: Joi.string().default('localhost'),
-        LOGSTASH_PORT: Joi.number().default(5044),
         AI_SERVICE_URL: Joi.string().default('http://localhost:8000'),
       }),
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],

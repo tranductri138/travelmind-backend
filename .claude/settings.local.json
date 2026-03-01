@@ -28,7 +28,8 @@
       "Bash(./node_modules/.bin/vite build:*)",
       "mcp__ide__getDiagnostics",
       "Bash(/tmp/check_deps.py:*)",
-      "Bash(/tmp/final_check.py:*)"
+      "Bash(/tmp/final_check.py:*)",
+      "Bash(docker ps:*)"
     ]
   }
 }

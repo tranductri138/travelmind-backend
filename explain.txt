@@ -2,4 +2,4 @@
 "prisma:generate": "prisma generate", //Tao lai Prisma Client tu schema.prisma (chay sau khi thay doi schema)
 "prisma:seed": "npx tsx prisma/seed.ts", //Chay file seed de tao du lieu mau (admin, user, hotels, rooms)
 "prisma:studio": "prisma studio", //Mo giao dien web quan ly database tai http://localhost:5555
-docker compose up -d elasticsearch kibana // chi chay 1 vai service cua docker compose thoi
+docker compose up -d postgres redis rabbitmq // chi chay 1 vai service cua docker compose thoi

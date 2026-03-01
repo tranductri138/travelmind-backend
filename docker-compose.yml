@@ -23,9 +23,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - LOGSTASH_HOST=logstash
-      - LOGSTASH_PORT=5044
       - AI_SERVICE_URL=http://ai:8000
 
   ai:
@@ -131,38 +128,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── ELK Stack ─────────────────────────────────────────────
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.0
-    volumes:
-      - ./docker/elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    ports:
-      - "5044:5044"
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-
 volumes:
   pgdata:
-  esdata:
   qdrant_data:
   rabbitmq_data:

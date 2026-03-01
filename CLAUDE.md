@@ -1,6 +1,6 @@
 # TravelMind Backend
 
-NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Elasticsearch + Socket.io + LianLian Bank (simulated).
+NestJS 11 + TypeScript + Prisma + PostgreSQL 16 + Redis + RabbitMQ + Socket.io + LianLian Bank (simulated).
 
 - **Node** v20.18.3 | **CommonJS** (import dùng `.js` extension) | **Strict** ON
 - **Port** 3000 | prefix `/api` | health `/health` | Swagger `/api/docs`

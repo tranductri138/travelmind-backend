@@ -3,7 +3,6 @@ import { HotelController } from './hotel.controller.js';
 import { HotelService } from './hotel.service.js';
 import { HotelRepository } from './hotel.repository.js';
 import { PriceSyncConsumer } from './consumers/price-sync.consumer.js';
-import { HotelIndexingConsumer } from './consumers/hotel-indexing.consumer.js';
 
 @Module({
   controllers: [HotelController],
@@ -11,7 +10,6 @@ import { HotelIndexingConsumer } from './consumers/hotel-indexing.consumer.js';
     HotelService,
     HotelRepository,
     PriceSyncConsumer,
-    HotelIndexingConsumer,
   ],
   exports: [HotelService],
 })

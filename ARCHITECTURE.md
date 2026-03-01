@@ -20,7 +20,7 @@
 11. [Booking Module — Dat Phong & Saga Pattern](#11-booking-module)
 12. [Payment Module — LianLian Bank Thanh Toan](#12-payment-module)
 13. [Review Module — Danh Gia & Rating](#13-review-module)
-14. [Search Module — Elasticsearch & AI Semantic](#14-search-module)
+14. [Search Module — PostgreSQL + AI Semantic & AI Semantic](#14-search-module)
 15. [Notification Module — Email & Push](#15-notification-module)
 16. [Crawler Module — Web Scraping](#16-crawler-module)
 17. [Chat Module — AI Chat (WebSocket + REST)](#17-chat-module)
@@ -36,7 +36,7 @@ TravelMind Backend la **NestJS API server**, chiu trach nhiem:
 - Quan ly toan bo du lieu (hotel, user, booking, room, review, payment)
 - Xac thuc va phan quyen (JWT + Passport)
 - Thanh toan qua LianLian Bank (simulated)
-- Tim kiem full-text qua Elasticsearch
+- Tim kiem full-text qua PostgreSQL + AI Semantic
 - Proxy semantic search sang AI service
 - Gui event sang AI service qua RabbitMQ de dong bo embedding
 
@@ -60,7 +60,7 @@ TravelMind Backend la **NestJS API server**, chiu trach nhiem:
 │  │  └──────────┘  └────────────────┘  └──────────────────┘   │  │
 │  └────────────────────────────────────────────────────────────┘  │
 │         │              │              │           │               │
-│    PostgreSQL       Redis        RabbitMQ    Elasticsearch       │
+│    PostgreSQL       Redis        RabbitMQ    PostgreSQL + AI Semantic       │
 │    (Prisma ORM)    (Cache)      (Events)    (Full-text)          │
 └─────────────────────────────────────────────────────────────────┘
           │                           │
@@ -78,7 +78,7 @@ src/
 ├── main.ts              ← Entry point: tao app, cau hinh, listen port
 ├── app.module.ts        ← Root module: import tat ca modules
 ├── core/                ← Ha tang dung chung (global)
-│   ├── config/          ← 7 file config: app, database, jwt, redis, rabbitmq, elk, ai
+│   ├── config/          ← 7 file config: app, database, jwt, redis, rabbitmq, app, ai
 │   ├── database/        ← PrismaService (ORM), PrismaHealthIndicator
 │   ├── cache/           ← CacheService (Redis backend)
 │   ├── logger/          ← LoggerService (JSON structured logs)
@@ -103,7 +103,7 @@ src/
     ├── booking/         ← Booking CRUD + Saga pattern
     ├── payment/         ← LianLian Bank simulated payment
     ├── review/          ← Review CRUD + rating aggregation
-    ├── search/          ← Elasticsearch + AI semantic proxy
+    ├── search/          ← PostgreSQL + AI Semantic + AI semantic proxy
     ├── notification/    ← Email + push (template-based)
     ├── crawler/         ← Trigger web scraping jobs
     ├── chat/            ← AI Chat (WebSocket + REST)
@@ -494,7 +494,7 @@ export class CoreModule {}
 | `jwt.config.ts` | `jwt` | `config.get('jwt.accessSecret')` |
 | `redis.config.ts` | `redis` | `config.get('redis.host')` → localhost |
 | `rabbitmq.config.ts` | `rabbitmq` | `config.get('rabbitmq.url')` |
-| `elk.config.ts` | `elk` | `config.get('elk.url')` |
+| `app.config.ts` | `app` | `config.get('app.url')` |
 | `ai.config.ts` | `ai` | `config.get('ai.serviceUrl')` → http://localhost:8000 |
 
 `config.module.ts` dang ky tat ca + Joi validation:
@@ -548,7 +548,7 @@ Backend: Redis. Dung de cache ket qua query DB, giam tai cho PostgreSQL.
   "context": "HotelService"
 }
 ```
-JSON logs de Logstash/ELK thu thap va hien thi tren Kibana dashboard.
+JSON logs de structured JSON logging tren stdout/stderr.
 
 ### 5.5. Health (src/core/health/)
 
@@ -1315,7 +1315,7 @@ search/
 ├── search.module.ts           ← Import HttpModule cho AI proxy
 ├── search.controller.ts       ← 2 routes
 ├── search.service.ts          ← ES query + AI proxy
-├── elasticsearch.provider.ts  ← ES client factory
+├── search.service.ts  ← PostgreSQL + AI search
 ├── dto/
 │   ├── search-query.dto.ts    ← q, city, country, page, limit
 │   └── semantic-search.dto.ts ← query, city, country, min_stars, limit
@@ -1326,12 +1326,12 @@ search/
 
 ### 14.1. 2 Loai Search
 
-| | Full-text (Elasticsearch) | Semantic (AI) |
+| | Full-text (PostgreSQL + AI Semantic) | Semantic (AI) |
 |---|---|---|
 | Route | `GET /api/search?q=beach` | `POST /api/search/semantic` |
 | Cach hoat dong | Tim theo keyword match | Tim theo y nghia (vector) |
 | VD | "beach" → match chu "beach" | "noi yên tĩnh gần biển" → hiểu ngữ cảnh |
-| Engine | Elasticsearch | Qdrant (qua AI service) |
+| Engine | PostgreSQL + AI Semantic | Qdrant (qua AI service) |
 | Toc do | Nhanh | Cham hon (can embed query) |
 | Typo | Ho tro fuzzy | Khong can — hieu ngon ngu tu nhien |
 
@@ -1786,11 +1786,11 @@ Browser              Frontend                 Backend               AI Service
 │  │  by AI)     │  │  9 routing keys       │  │                     │ │
 │  └─────────────┘  └───────────────────────┘  └─────────────────────┘ │
 │                                                                        │
-│  ┌─────────────┐  ┌───────────────────────┐  ┌─────────────────────┐ │
-│  │    Redis    │  │   Elasticsearch       │  │  Kibana + Logstash  │ │
-│  │  Port 6379  │  │   Port 9200           │  │  Port 5601          │ │
-│  │  (Cache)    │  │   (Full-text search)  │  │  (Log dashboard)    │ │
-│  └─────────────┘  └───────────────────────┘  └─────────────────────┘ │
+│  ┌─────────────┐                                                      │
+│  │    Redis    │                                                      │
+│  │  Port 6379  │                                                      │
+│  │  (Cache)    │                                                      │
+│  └─────────────┘                                                      │
 │                                                                        │
 └──────────────────────────────────────────────────────────────────────────┘
 
@@ -1798,7 +1798,7 @@ Luong du lieu:
 1. Browser → Frontend (React) → Backend API (NestJS) → PostgreSQL
 2. Backend emit event → EventBridge → RabbitMQ → AI Service → Qdrant
 3. Browser search → Frontend → Backend → proxy → AI → Qdrant → result
-4. Browser search → Frontend → Backend → Elasticsearch → result
+4. Browser search → Frontend → Backend → PostgreSQL + AI Semantic → result
 5. Backend cache → Redis → Backend (giam tai DB)
 6. LianLian Bank confirm → Backend → update booking status → emit event
 7. Browser → Frontend (Socket.io) → Backend Chat Gateway (WS) → AI Service (SSE) → stream chunks → Client

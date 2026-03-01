@@ -1,12 +1,9 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-import { Client } from '@elastic/elasticsearch';
 import { firstValueFrom } from 'rxjs';
-import { ELASTICSEARCH_CLIENT } from './elasticsearch.provider.js';
 import { SearchQueryDto } from './dto/search-query.dto.js';
 import { SemanticSearchDto } from './dto/semantic-search.dto.js';
-import { HOTEL_INDEX } from './indices/hotel.index.js';
 import { PrismaService } from '../../core/database/prisma.service.js';
 
 @Injectable()
@@ -15,7 +12,6 @@ export class SearchService {
   private readonly aiServiceUrl: string;
 
   constructor(
-    @Inject(ELASTICSEARCH_CLIENT) private readonly esClient: Client,
     private readonly httpService: HttpService,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
@@ -28,72 +24,7 @@ export class SearchService {
 
   async searchHotels(dto: SearchQueryDto) {
     const { q, city, country, page = 1, limit = 10 } = dto;
-
-    // Try Elasticsearch first, fallback to PostgreSQL
-    try {
-      return await this.searchWithElasticsearch(q, city, country, page, limit);
-    } catch (error) {
-      this.logger.warn(
-        `Elasticsearch unavailable, falling back to PostgreSQL: ${error instanceof Error ? error.message : 'Unknown'}`,
-      );
-      return this.searchWithPostgres(q, city, country, page, limit);
-    }
-  }
-
-  private async searchWithElasticsearch(
-    q: string,
-    city: string | undefined,
-    country: string | undefined,
-    page: number,
-    limit: number,
-  ) {
-    const must: Record<string, unknown>[] = [
-      {
-        multi_match: {
-          query: q,
-          fields: ['name^3', 'description', 'city^2', 'address'],
-          fuzziness: 'AUTO',
-        },
-      },
-    ];
-
-    const filter: Record<string, unknown>[] = [{ term: { isActive: true } }];
-    if (city) filter.push({ term: { city } });
-    if (country) filter.push({ term: { country } });
-
-    const result = await this.esClient.search({
-      index: HOTEL_INDEX,
-      from: (page - 1) * limit,
-      size: limit,
-      query: { bool: { must, filter } as any },
-      sort: ['_score', { rating: 'desc' }] as any,
-    });
-
-    const hits = result.hits.hits;
-    const total =
-      typeof result.hits.total === 'number'
-        ? result.hits.total
-        : ((result.hits.total as { value: number })?.value ?? 0);
-
-    if (hits.length === 0) {
-      return { data: [], meta: { total: 0, page, limit, totalPages: 0 } };
-    }
-
-    const scoreMap = new Map<string, number>();
-    const hotelIds: string[] = [];
-    for (const hit of hits) {
-      const source = hit._source as Record<string, unknown>;
-      const id = (source.id as string) || (hit._id as string);
-      hotelIds.push(id);
-      scoreMap.set(id, hit._score ?? 0);
-    }
-
-    const data = await this.enrichHotels(hotelIds, scoreMap, 'keyword');
-
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+    return this.searchWithPostgres(q, city, country, page, limit);
   }
 
   private async searchWithPostgres(
@@ -144,35 +75,6 @@ export class SearchService {
       data,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
-  }
-
-  private async enrichHotels(
-    hotelIds: string[],
-    scoreMap: Map<string, number>,
-    source: 'keyword' | 'semantic',
-  ) {
-    const hotels = await this.prisma.hotel.findMany({
-      where: { id: { in: hotelIds } },
-      include: { rooms: true },
-    });
-
-    const hotelMap = new Map(hotels.map((h) => [h.id, h]));
-
-    return hotelIds
-      .filter((id) => hotelMap.has(id))
-      .map((id) => {
-        const hotel = hotelMap.get(id)!;
-        const activeRooms = hotel.rooms.filter((r) => r.isActive);
-        const priceMin = activeRooms.length
-          ? Math.min(...activeRooms.map((r) => Number(r.price)))
-          : 0;
-        const { rooms, ...rest } = hotel;
-        return {
-          hotel: { ...rest, priceMin },
-          score: scoreMap.get(id) ?? 0,
-          source,
-        };
-      });
   }
 
   async unifiedSearch(dto: SearchQueryDto) {
