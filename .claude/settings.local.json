@@ -30,7 +30,8 @@
       "Bash(/tmp/check_deps.py:*)",
       "Bash(/tmp/final_check.py:*)",
       "Bash(docker ps:*)",
-      "Bash(PGPASSWORD=secret psql:*)"
+      "Bash(PGPASSWORD=secret psql:*)",
+      "Bash(do echo:*)"
     ]
   }
 }
