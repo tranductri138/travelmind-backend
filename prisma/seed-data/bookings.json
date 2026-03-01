@@ -1,0 +1,127 @@
+[
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "roomType": "deluxe",
+    "checkIn": "2026-01-15",
+    "checkOut": "2026-01-18",
+    "guests": 2,
+    "totalPrice": 450,
+    "status": "COMPLETED",
+    "specialRequests": "Late check-out nếu có thể",
+    "payment": {
+      "amount": 450,
+      "status": "SUCCEEDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "roomType": "suite",
+    "checkIn": "2026-03-10",
+    "checkOut": "2026-03-14",
+    "guests": 4,
+    "totalPrice": 1200,
+    "status": "CONFIRMED",
+    "specialRequests": "Cần giường phụ cho trẻ em",
+    "payment": {
+      "amount": 1200,
+      "status": "SUCCEEDED",
+      "method": "bank_transfer"
+    }
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "roomType": "standard",
+    "checkIn": "2026-03-05",
+    "checkOut": "2026-03-08",
+    "guests": 2,
+    "totalPrice": 360,
+    "status": "CONFIRMED",
+    "payment": {
+      "amount": 360,
+      "status": "SUCCEEDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "roomType": "villa",
+    "checkIn": "2026-03-20",
+    "checkOut": "2026-03-25",
+    "guests": 5,
+    "totalPrice": 2500,
+    "status": "PENDING",
+    "specialRequests": "Đi cùng gia đình, cần phòng yên tĩnh",
+    "payment": {
+      "amount": 2500,
+      "status": "PENDING",
+      "method": "bank_transfer"
+    }
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "roomType": "standard",
+    "checkIn": "2026-02-10",
+    "checkOut": "2026-02-12",
+    "guests": 1,
+    "totalPrice": 240,
+    "status": "CANCELLED",
+    "payment": {
+      "amount": 240,
+      "status": "REFUNDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "roomType": "deluxe",
+    "checkIn": "2026-02-20",
+    "checkOut": "2026-02-23",
+    "guests": 2,
+    "totalPrice": 450,
+    "status": "COMPLETED",
+    "payment": {
+      "amount": 450,
+      "status": "SUCCEEDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "duong-gia-hotel",
+    "roomType": "suite",
+    "checkIn": "2026-04-01",
+    "checkOut": "2026-04-05",
+    "guests": 3,
+    "totalPrice": 1200,
+    "status": "PENDING",
+    "specialRequests": "Kỷ niệm ngày cưới, có thể decor phòng không?",
+    "payment": {
+      "amount": 1200,
+      "status": "PENDING",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "hanoi-hotel",
+    "roomType": "villa",
+    "checkIn": "2026-01-25",
+    "checkOut": "2026-01-30",
+    "guests": 6,
+    "totalPrice": 2500,
+    "status": "COMPLETED",
+    "specialRequests": "Cần xe đưa đón sân bay",
+    "payment": {
+      "amount": 2500,
+      "status": "SUCCEEDED",
+      "method": "bank_transfer"
+    }
+  }
+]

@@ -1,4 +1,9 @@
-import { PrismaClient, Role } from '@prisma/client';
+import {
+  PrismaClient,
+  Role,
+  BookingStatus,
+  PaymentStatus,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -53,6 +58,25 @@ interface ReviewSeed {
   comment?: string;
 }
 
+interface PaymentSeed {
+  amount: number;
+  status: string;
+  method: string;
+}
+
+interface BookingSeed {
+  userEmail: string;
+  hotelSlug: string;
+  roomType: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  totalPrice: number;
+  status: string;
+  specialRequests?: string;
+  payment: PaymentSeed;
+}
+
 async function seedUsers(users: UserSeed[]) {
   const created: Record<string, { id: string; email: string }> = {};
 
@@ -75,7 +99,8 @@ async function seedUsers(users: UserSeed[]) {
 }
 
 async function seedHotels(hotels: HotelSeed[]) {
-  const created: Record<string, string> = {};
+  const hotelMap: Record<string, string> = {};
+  const roomMap: Record<string, string> = {}; // "hotelSlug:roomType" -> roomId
 
   for (const h of hotels) {
     const { rooms, ...hotelData } = h;
@@ -85,17 +110,26 @@ async function seedHotels(hotels: HotelSeed[]) {
       update: {},
       create: hotelData,
     });
-    created[h.slug] = hotel.id;
+    hotelMap[h.slug] = hotel.id;
 
     if (rooms?.length) {
-      await prisma.room.createMany({
-        skipDuplicates: true,
-        data: rooms.map((r) => ({ ...r, hotelId: hotel.id })),
-      });
+      for (const r of rooms) {
+        const existing = await prisma.room.findFirst({
+          where: { hotelId: hotel.id, type: r.type },
+        });
+        if (existing) {
+          roomMap[`${h.slug}:${r.type}`] = existing.id;
+        } else {
+          const room = await prisma.room.create({
+            data: { ...r, hotelId: hotel.id },
+          });
+          roomMap[`${h.slug}:${r.type}`] = room.id;
+        }
+      }
     }
   }
 
-  return created;
+  return { hotelMap, roomMap };
 }
 
 async function seedReviews(
@@ -114,19 +148,125 @@ async function seedReviews(
   await prisma.review.createMany({ skipDuplicates: true, data });
 }
 
+async function seedRoomAvailability(roomMap: Record<string, string>) {
+  const roomIds = Object.values(roomMap);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const data: { roomId: string; date: Date; isAvailable: boolean }[] = [];
+
+  for (const roomId of roomIds) {
+    for (let i = 0; i < 60; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + i);
+      data.push({ roomId, date, isAvailable: true });
+    }
+  }
+
+  await prisma.roomAvailability.createMany({ skipDuplicates: true, data });
+  return data.length;
+}
+
+async function seedBookings(
+  bookings: BookingSeed[],
+  userMap: Record<string, { id: string }>,
+  roomMap: Record<string, string>,
+) {
+  let bookingCount = 0;
+  let paymentCount = 0;
+
+  for (const b of bookings) {
+    const userId = userMap[b.userEmail]?.id;
+    const roomId = roomMap[`${b.hotelSlug}:${b.roomType}`];
+    if (!userId || !roomId) continue;
+
+    const existing = await prisma.booking.findFirst({
+      where: {
+        userId,
+        roomId,
+        checkIn: new Date(b.checkIn),
+        checkOut: new Date(b.checkOut),
+      },
+    });
+    if (existing) continue;
+
+    const booking = await prisma.booking.create({
+      data: {
+        userId,
+        roomId,
+        checkIn: new Date(b.checkIn),
+        checkOut: new Date(b.checkOut),
+        guests: b.guests,
+        totalPrice: b.totalPrice,
+        status: b.status as BookingStatus,
+        specialRequests: b.specialRequests,
+      },
+    });
+    bookingCount++;
+
+    await prisma.payment.create({
+      data: {
+        bookingId: booking.id,
+        amount: b.payment.amount,
+        status: b.payment.status as PaymentStatus,
+        method: b.payment.method,
+        transactionId:
+          b.payment.status === 'SUCCEEDED' || b.payment.status === 'REFUNDED'
+            ? `TXN-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+            : null,
+      },
+    });
+    paymentCount++;
+
+    // Mark room availability as unavailable for booked dates
+    if (b.status !== 'CANCELLED') {
+      const checkIn = new Date(b.checkIn);
+      const checkOut = new Date(b.checkOut);
+      const dates: Date[] = [];
+      for (
+        let d = new Date(checkIn);
+        d < checkOut;
+        d.setDate(d.getDate() + 1)
+      ) {
+        dates.push(new Date(d));
+      }
+      for (const date of dates) {
+        await prisma.roomAvailability.upsert({
+          where: { roomId_date: { roomId, date } },
+          update: { isAvailable: false },
+          create: { roomId, date, isAvailable: false },
+        });
+      }
+    }
+  }
+
+  return { bookingCount, paymentCount };
+}
+
 async function main() {
   const users = loadJson<UserSeed[]>('users.json');
   const hotels = loadJson<HotelSeed[]>('hotels.json');
   const reviews = loadJson<ReviewSeed[]>('reviews.json');
+  const bookings = loadJson<BookingSeed[]>('bookings.json');
 
   const userMap = await seedUsers(users);
-  const hotelMap = await seedHotels(hotels);
+  const { hotelMap, roomMap } = await seedHotels(hotels);
   await seedReviews(reviews, userMap, hotelMap);
+  const availabilityCount = await seedRoomAvailability(roomMap);
+  const { bookingCount, paymentCount } = await seedBookings(
+    bookings,
+    userMap,
+    roomMap,
+  );
 
   console.log('Seed data created:', {
     users: Object.keys(userMap),
     hotels: Object.keys(hotelMap),
+    rooms: Object.keys(roomMap),
     reviews: reviews.length,
+    roomAvailability: availabilityCount,
+    bookings: bookingCount,
+    payments: paymentCount,
   });
 }
 
