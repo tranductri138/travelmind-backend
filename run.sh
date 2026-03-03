@@ -5,7 +5,7 @@ IMAGE_NAME="travelmind-api"
 CONTAINER_NAME="travelmind-api"
 ENV_FILE=".env"
 DOCKERFILE="docker/Dockerfile.dev"
-NETWORK="backend_default"
+NETWORK="travelmind"
 
 # Stop & remove container cũ nếu đang chạy
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then

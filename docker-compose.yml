@@ -17,6 +17,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    networks:
+      - travelmind
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://travelmind:secret@postgres:5432/travelmind
@@ -41,6 +43,8 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_healthy
+    networks:
+      - travelmind
     environment:
       - APP_ENV=development
       - APP_PORT=8000
@@ -68,6 +72,8 @@ services:
       - /app/node_modules
     depends_on:
       - api
+    networks:
+      - travelmind
     environment:
       - VITE_API_URL=http://localhost:3000/api
 
@@ -82,6 +88,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - travelmind
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U travelmind"]
       interval: 5s
@@ -92,6 +100,8 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - travelmind
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -105,6 +115,8 @@ services:
       - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
+    networks:
+      - travelmind
     healthcheck:
       test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/6333"]
       interval: 10s
@@ -122,11 +134,18 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - travelmind
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+networks:
+  travelmind:
+    name: travelmind
+    driver: bridge
 
 volumes:
   pgdata:
