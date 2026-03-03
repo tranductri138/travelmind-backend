@@ -4,7 +4,7 @@ set -e
 IMAGE_NAME="travelmind-api"
 CONTAINER_NAME="travelmind-api"
 ENV_FILE=".env"
-DOCKERFILE="docker/Dockerfile.dev"
+DOCKERFILE="docker/Dockerfile"
 NETWORK="travelmind"
 
 # Stop & remove container cũ nếu đang chạy
@@ -19,21 +19,44 @@ if ! docker network ls --format '{{.Name}}' | grep -q "^${NETWORK}$"; then
   exit 1
 fi
 
+# ── Build ──────────────────────────────────────────────────
 echo "Building image: ${IMAGE_NAME}..."
 docker build -t "$IMAGE_NAME" -f "$DOCKERFILE" .
 
-echo "Running container: ${CONTAINER_NAME}..."
+# ── Migrate ────────────────────────────────────────────────
+echo "Running prisma migrate deploy..."
+docker run --rm \
+  --env-file "$ENV_FILE" \
+  --network "$NETWORK" \
+  "$IMAGE_NAME" \
+  npx prisma migrate deploy
+
+# ── Seed ───────────────────────────────────────────────────
+echo "Running seed..."
+docker run --rm \
+  --env-file "$ENV_FILE" \
+  --network "$NETWORK" \
+  "$IMAGE_NAME" \
+  npx tsx prisma/seed.ts
+
+# ── Sync AI ────────────────────────────────────────────────
+echo "Running sync-ai..."
+docker run --rm \
+  --env-file "$ENV_FILE" \
+  --network "$NETWORK" \
+  "$IMAGE_NAME" \
+  npx tsx prisma/sync-ai.ts
+
+# ── Run ────────────────────────────────────────────────────
+echo "Starting container: ${CONTAINER_NAME}..."
 docker run -d \
   --name "$CONTAINER_NAME" \
   --env-file "$ENV_FILE" \
   --network "$NETWORK" \
   -p 3000:3000 \
-  -p 9229:9229 \
-  -v "$(pwd)":/app \
-  -v /app/node_modules \
   "$IMAGE_NAME"
 
 echo ""
-echo "Container started: ${CONTAINER_NAME}"
+echo "Done!"
 echo "  API: http://localhost:3000/api"
 echo "  Logs: docker logs -f ${CONTAINER_NAME}"
