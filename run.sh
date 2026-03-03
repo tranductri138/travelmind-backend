@@ -24,12 +24,12 @@ echo "Building image: ${IMAGE_NAME}..."
 docker build -t "$IMAGE_NAME" -f "$DOCKERFILE" .
 
 # ── Migrate ────────────────────────────────────────────────
-echo "Running prisma migrate deploy..."
+echo "Running prisma db push..."
 docker run --rm \
   --env-file "$ENV_FILE" \
   --network "$NETWORK" \
   "$IMAGE_NAME" \
-  npx prisma migrate deploy
+  npx prisma db push --accept-data-loss
 
 # ── Seed ───────────────────────────────────────────────────
 echo "Running seed..."
