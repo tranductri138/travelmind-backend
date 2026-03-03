@@ -39,28 +39,33 @@ export class HotelRepository {
     if (dto.country)
       where.country = { equals: dto.country, mode: 'insensitive' };
     if (dto.minStars) where.stars = { gte: dto.minStars };
-    if (dto.minRating) where.rating = { gte: dto.minRating };
+    const minRating = dto.minRating ?? dto.rating;
+    if (minRating) where.rating = { gte: minRating };
     if (dto.amenities?.length) where.amenities = { hasEvery: dto.amenities };
 
-    const orderBy: Prisma.HotelOrderByWithRelationInput = {};
-    if (dto.sortBy) {
-      (orderBy as Record<string, string>)[dto.sortBy] = dto.sortOrder || 'desc';
-    } else {
-      orderBy.rating = 'desc';
+    // Price filter: hotels must have at least one active room in the price range
+    if (dto.minPrice !== undefined || dto.maxPrice !== undefined) {
+      const roomPriceFilter: Prisma.RoomWhereInput = { isActive: true };
+      if (dto.minPrice !== undefined)
+        roomPriceFilter.price = { gte: dto.minPrice };
+      if (dto.maxPrice !== undefined) {
+        roomPriceFilter.price = {
+          ...((roomPriceFilter.price as Prisma.FloatFilter) || {}),
+          lte: dto.maxPrice,
+        };
+      }
+      where.rooms = { some: roomPriceFilter };
     }
 
     const [hotels, total] = await Promise.all([
       this.prisma.hotel.findMany({
         where,
-        orderBy,
-        skip: dto.skip,
-        take: dto.limit,
         include: { rooms: true },
       }),
       this.prisma.hotel.count({ where }),
     ]);
 
-    const hotelsWithPrice = hotels.map((hotel) => {
+    let hotelsWithPrice = hotels.map((hotel) => {
       const activeRooms = hotel.rooms.filter((r) => r.isActive);
       const priceMin =
         activeRooms.length > 0
@@ -69,6 +74,33 @@ export class HotelRepository {
       const { rooms, ...rest } = hotel;
       return { ...rest, priceMin };
     });
+
+    // Sort — frontend sends "rating:desc" or "priceMin:asc" in sort param
+    let sortBy = dto.sortBy ?? dto.sort ?? 'rating';
+    let sortOrder = dto.sortOrder || 'desc';
+    if (sortBy.includes(':')) {
+      const [field, order] = sortBy.split(':');
+      sortBy = field;
+      sortOrder = order === 'asc' ? 'asc' : 'desc';
+    }
+    const sortField = sortBy === 'price' ? 'priceMin' : sortBy;
+    hotelsWithPrice.sort((a, b) => {
+      const aVal = (a as Record<string, unknown>)[sortField];
+      const bVal = (b as Record<string, unknown>)[sortField];
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      const aStr = String(aVal);
+      const bStr = String(bVal);
+      return sortOrder === 'asc'
+        ? aStr.localeCompare(bStr)
+        : bStr.localeCompare(aStr);
+    });
+
+    // Paginate
+    const skip = dto.skip ?? 0;
+    const limit = dto.limit ?? 12;
+    hotelsWithPrice = hotelsWithPrice.slice(skip, skip + limit);
 
     return new PaginatedResponseDto(
       hotelsWithPrice,

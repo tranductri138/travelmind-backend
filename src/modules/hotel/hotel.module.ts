@@ -6,11 +6,7 @@ import { PriceSyncConsumer } from './consumers/price-sync.consumer.js';
 
 @Module({
   controllers: [HotelController],
-  providers: [
-    HotelService,
-    HotelRepository,
-    PriceSyncConsumer,
-  ],
+  providers: [HotelService, HotelRepository, PriceSyncConsumer],
   exports: [HotelService],
 })
 export class HotelModule {}

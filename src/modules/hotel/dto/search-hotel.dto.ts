@@ -48,13 +48,21 @@ export class SearchHotelDto extends PaginationQueryDto {
   @Max(5)
   minStars?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Minimum rating (0-5)' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(5)
   minRating?: number;
+
+  @ApiPropertyOptional({ description: 'Alias for minRating' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  rating?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -66,6 +74,11 @@ export class SearchHotelDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   sortBy?: string;
+
+  @ApiPropertyOptional({ description: 'Alias for sortBy' })
+  @IsOptional()
+  @IsString()
+  sort?: string;
 
   @ApiPropertyOptional({ example: 'desc' })
   @IsOptional()
