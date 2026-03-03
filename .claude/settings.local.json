@@ -32,7 +32,8 @@
       "Bash(docker ps:*)",
       "Bash(PGPASSWORD=secret psql:*)",
       "Bash(do echo:*)",
-      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Yes, reset it\" npx prisma:*)"
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Yes, reset it\" npx prisma:*)",
+      "Bash(chmod +x:*)"
     ]
   }
 }
