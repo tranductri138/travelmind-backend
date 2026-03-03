@@ -27,6 +27,7 @@
     "prisma:studio": "prisma studio",
     "prisma:setup": "prisma migrate deploy && prisma generate && npx tsx prisma/seed.ts && npx tsx prisma/sync-ai.ts",
     "docker:up": "docker compose up -d",
+    "docker:upinfras": "docker compose up -d postgres redis rabbitmq qdrant",
     "docker:down": "docker compose down"
   },
   "dependencies": {

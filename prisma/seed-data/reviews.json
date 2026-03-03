@@ -54,5 +54,103 @@
     "rating": 3,
     "title": "Tạm ổn, cần nâng cấp",
     "comment": "Vị trí tốt, nhân viên ok. Nhưng nội thất phòng đã cũ, cần renovate lại. Nước nóng lúc có lúc không. Hy vọng khách sạn sẽ nâng cấp trong thời gian tới."
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "rating": 5,
+    "title": "Sang trọng xứng tầm 5 sao",
+    "comment": "Phòng suite view Nhà thờ Đức Bà tuyệt đẹp, nhất là ban đêm. Buffet sáng tầng thượng phong phú, hồ bơi vô cực chill vô cùng. Nhân viên chuyên nghiệp, check-in nhanh chóng."
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "rating": 4,
+    "title": "Vị trí trung tâm Q1, tiện đi lại",
+    "comment": "Đi bộ ra Nhà thờ Đức Bà, Bưu điện, phố đi bộ Nguyễn Huệ đều gần. Phòng deluxe rộng, view thành phố đẹp. Spa rất tốt. Trừ 1 sao vì parking hơi chật."
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "rating": 5,
+    "title": "Đỉnh cao dịch vụ Sài Gòn",
+    "comment": "Đi công tác SG lần nào cũng ở đây. Gym hiện đại, hồ bơi đẹp, nhà hàng ngon. Phòng cách âm tốt, ngủ rất ngon dù nằm giữa trung tâm. WiFi siêu nhanh."
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "rating": 4,
+    "title": "Xứng đáng giá tiền",
+    "comment": "Phòng standard tuy nhỏ nhưng đầy đủ tiện nghi, thiết kế hiện đại. Minibar có đồ uống miễn phí. Airport shuttle rất tiện, đúng giờ. Sẽ book lại cho chuyến tới."
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "nha-trang-beach-resort",
+    "rating": 5,
+    "title": "Resort biển tuyệt vời nhất Nha Trang",
+    "comment": "Bãi biển riêng rất sạch và yên tĩnh. Villa có hồ bơi riêng, con mình bơi cả ngày. Nhà hàng hải sản tươi ngon, giá hợp lý. Tour lặn biển do resort tổ chức rất chuyên nghiệp."
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "nha-trang-beach-resort",
+    "rating": 4,
+    "title": "Thiên đường nghỉ dưỡng ven biển",
+    "comment": "3 hồ bơi rất đẹp, nhất là hồ bơi infinity view biển. Phòng deluxe view biển tuyệt vời, sáng mở mắt ra thấy biển xanh. Bar bãi biển pha cocktail ngon. Trừ 1 sao vì wifi hơi yếu ở bãi biển."
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "nha-trang-beach-resort",
+    "rating": 4,
+    "title": "Gia đình rất hài lòng",
+    "comment": "Kids club giữ con cả ngày, mình với vợ được thư giãn ở spa. Buffet sáng đa dạng. Phòng rộng, sạch, view vườn dừa xanh mát. Resort rộng nên đi bộ hơi mệt, nên có xe buggy thì tốt hơn."
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "dalat-pine-hill-hotel",
+    "rating": 4,
+    "title": "Yên bình giữa đồi thông",
+    "comment": "Thức dậy giữa rừng thông, không khí trong lành tuyệt vời. Phòng có lò sưởi, buổi tối ngồi uống trà rất chill. Nhà hàng nấu ăn ngon, đặc biệt lẩu gà lá é. Cách trung tâm hơi xa nhưng yên tĩnh."
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "dalat-pine-hill-hotel",
+    "rating": 5,
+    "title": "Kiến trúc Pháp đẹp mê, không khí tuyệt",
+    "comment": "Khách sạn như một biệt thự Pháp giữa rừng thông, chụp ảnh đâu cũng đẹp. Phòng deluxe có bồn tắm nước nóng, ban công nhìn ra thung lũng. Quán cà phê sân vườn là điểm cộng lớn. Giá rất tốt cho chất lượng này."
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "dalat-pine-hill-hotel",
+    "rating": 4,
+    "title": "Đáng giá cho một kỳ nghỉ yên tĩnh",
+    "comment": "BBQ ngoài trời buổi tối rất vui, thịt nướng ngon, rau Đà Lạt tươi. Phòng ấm áp, chăn lông vũ dày, ngủ ngon. Parking rộng rãi, thuận tiện cho ai tự lái xe. Nhân viên thân thiện và nhiệt tình."
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "hue-imperial-hotel",
+    "rating": 5,
+    "title": "Trải nghiệm văn hóa Huế đích thực",
+    "comment": "Nhà hàng cung đình phục vụ ẩm thực Hoàng gia Huế cực kỳ tinh tế. Phòng suite view sông Hương đẹp mê, ban công rộng ngồi ngắm hoàng hôn. Spa thảo dược rất thư giãn. Tour xe đạp khám phá Cố đô rất hay."
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "hue-imperial-hotel",
+    "rating": 4,
+    "title": "View sông Hương thơ mộng",
+    "comment": "Phòng deluxe view sông Hương rất đẹp, nhất là buổi sáng khi sương mù chưa tan. Buffet sáng có cơm hến và bún bò Huế ngon. Vị trí gần Đại Nội, đi bộ được. Giá hợp lý cho khách sạn 4 sao."
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "hue-imperial-hotel",
+    "rating": 5,
+    "title": "Sang trọng mang đậm hồn Huế",
+    "comment": "Kiến trúc kết hợp cung đình Huế và hiện đại rất ấn tượng. Phòng trang trí tinh tế với tranh và đồ gốm Huế. Hồ bơi nhìn ra sông Hương. Được phục vụ trà cung đình khi check-in, cảm giác được chào đón rất đặc biệt."
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "hue-imperial-hotel",
+    "rating": 4,
+    "title": "Đậm chất Huế, dịch vụ tốt",
+    "comment": "Cho thuê xe đạp miễn phí, đạp xe dọc sông Hương rất thú vị. Nhân viên mặc áo dài truyền thống, nhẹ nhàng và lịch sự đúng chất Huế. Phòng sạch, giường êm. Trừ 1 sao vì elevator hơi chậm."
   }
 ]

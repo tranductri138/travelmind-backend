@@ -123,5 +123,85 @@
       "status": "SUCCEEDED",
       "method": "bank_transfer"
     }
+  },
+  {
+    "userEmail": "user@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "roomType": "deluxe",
+    "checkIn": "2026-03-15",
+    "checkOut": "2026-03-18",
+    "guests": 2,
+    "totalPrice": 540,
+    "status": "CONFIRMED",
+    "specialRequests": "Phòng tầng cao view thành phố",
+    "payment": {
+      "amount": 540,
+      "status": "SUCCEEDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "nha-trang-beach-resort",
+    "roomType": "villa",
+    "checkIn": "2026-04-10",
+    "checkOut": "2026-04-15",
+    "guests": 5,
+    "totalPrice": 1900,
+    "status": "CONFIRMED",
+    "specialRequests": "Đi gia đình, cần kids club cho 2 bé",
+    "payment": {
+      "amount": 1900,
+      "status": "SUCCEEDED",
+      "method": "bank_transfer"
+    }
+  },
+  {
+    "userEmail": "linh@travelmind.com",
+    "hotelSlug": "dalat-pine-hill-hotel",
+    "roomType": "deluxe",
+    "checkIn": "2026-03-22",
+    "checkOut": "2026-03-25",
+    "guests": 2,
+    "totalPrice": 330,
+    "status": "CONFIRMED",
+    "specialRequests": "Cần lò sưởi hoạt động tốt",
+    "payment": {
+      "amount": 330,
+      "status": "SUCCEEDED",
+      "method": "credit_card"
+    }
+  },
+  {
+    "userEmail": "hoa@travelmind.com",
+    "hotelSlug": "hue-imperial-hotel",
+    "roomType": "suite",
+    "checkIn": "2026-04-05",
+    "checkOut": "2026-04-08",
+    "guests": 3,
+    "totalPrice": 960,
+    "status": "PENDING",
+    "specialRequests": "Muốn trải nghiệm ẩm thực cung đình",
+    "payment": {
+      "amount": 960,
+      "status": "PENDING",
+      "method": "bank_transfer"
+    }
+  },
+  {
+    "userEmail": "minh@travelmind.com",
+    "hotelSlug": "saigon-palace-hotel",
+    "roomType": "suite",
+    "checkIn": "2026-02-14",
+    "checkOut": "2026-02-16",
+    "guests": 2,
+    "totalPrice": 900,
+    "status": "CANCELLED",
+    "specialRequests": "Valentine's Day, cần decor hoa hồng",
+    "payment": {
+      "amount": 900,
+      "status": "FAILED",
+      "method": "credit_card"
+    }
   }
 ]

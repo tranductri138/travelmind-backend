@@ -3,30 +3,48 @@
     "email": "admin@travelmind.com",
     "password": "Admin123!",
     "name": "Admin TravelMind",
-    "role": "ADMIN"
+    "role": "ADMIN",
+    "phone": "0900000001",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=AT"
+  },
+  {
+    "email": "owner@travelmind.com",
+    "password": "Owner123!",
+    "name": "Phạm Quốc Bảo",
+    "role": "HOTEL_OWNER",
+    "phone": "0900000006",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=PB"
   },
   {
     "email": "user@travelmind.com",
     "password": "User123!",
     "name": "Demo User",
-    "role": "USER"
+    "role": "USER",
+    "phone": "0900000002",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=DU"
   },
   {
     "email": "linh@travelmind.com",
     "password": "User123!",
     "name": "Nguyễn Thị Linh",
-    "role": "USER"
+    "role": "USER",
+    "phone": "0900000003",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=NL"
   },
   {
     "email": "minh@travelmind.com",
     "password": "User123!",
     "name": "Trần Văn Minh",
-    "role": "USER"
+    "role": "USER",
+    "phone": "0900000004",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=TM"
   },
   {
     "email": "hoa@travelmind.com",
     "password": "User123!",
     "name": "Lê Thanh Hoa",
-    "role": "USER"
+    "role": "USER",
+    "phone": "0900000005",
+    "avatar": "https://api.dicebear.com/9.x/initials/svg?seed=LH"
   }
 ]

@@ -2,7 +2,7 @@
   {
     "name": "Dương Gia Hotel",
     "slug": "duong-gia-hotel",
-    "description": "Dương Gia Hotel là khách sạn đạt chuẩn 3.5 sao mới khai trương ngày 1/1/2024 với thiết kế mới nhất theo phong cách Châu Âu. Dương Gia Hotel toạ lạc tại vị trí đắc địa nhất Đà Nẵng ngay sát biển Mỹ Khê, cách cầu Rồng 900m, cách cầu quay 500m và xung quanh là nhà hàng hải sản và các quán ăn đặc sản nổi tiếng Đà Nẵng. Khách sạn tổng 52 phòng rộng rãi, nội thất rất đẹp và sang trọng đầy đủ tiện nghi, phòng sàn lát gỗ hiện đại. Khách sạn Dương Gia có đội ngũ nhân viên vui vẻ nhiệt tình và vô cùng mến khách. Lưu trú tại đây du khách sẽ được tư vấn địa điểm vui chơi và ăn uống ngon rẻ. Đặc biệt khách sạn luôn luôn có khuyến mãi giá rẻ cho du khách đến nghỉ dưỡng tại đây.",
+    "description": "Dương Gia Hotel là khách sạn đạt chuẩn 3.5 sao mới khai trương ngày 1/1/2024 với thiết kế mới nhất theo phong cách Châu Âu. Dương Gia Hotel toạ lạc tại vị trí đắc địa nhất Đà Nẵng ngay sát biển Mỹ Khê, cách cầu Rồng 900m, cách cầu quay 500m và xung quanh là nhà hàng hải sản và các quán ăn đặc sản nổi tiếng Đà Nẵng. Khách sạn tổng 52 phòng rộng rãi, nội thất rất đẹp và sang trọng đầy đủ tiện nghi, phòng sàn lát gỗ hiện đại. Khách sạn Dương Gia có đội ngũ nhân viên vui vẻ nhiệt tình và vô cùng mến khách.",
     "address": "Phường An Hải, Sơn Trà, Đà Nẵng",
     "city": "Đà Nẵng",
     "country": "Vietnam",
@@ -21,6 +21,7 @@
     "rooms": [
       {
         "name": "Deluxe Room",
+        "description": "Phòng Deluxe rộng 30m2 với thiết kế Châu Âu hiện đại, sàn gỗ cao cấp, ban công nhìn ra thành phố. Đầy đủ tiện nghi: TV 55 inch, minibar, két sắt, máy pha cà phê.",
         "type": "deluxe",
         "price": 150,
         "maxGuests": 2,
@@ -28,6 +29,7 @@
       },
       {
         "name": "Suite",
+        "description": "Phòng Suite sang trọng 55m2 với phòng khách riêng biệt, ban công rộng view biển Mỹ Khê. Bồn tắm jacuzzi, minibar cao cấp, bàn làm việc rộng rãi. Phù hợp gia đình hoặc cặp đôi.",
         "type": "suite",
         "price": 300,
         "maxGuests": 4,
@@ -38,7 +40,7 @@
   {
     "name": "Hanoi Hotel",
     "slug": "hanoi-hotel",
-    "description": "Khách sạn Hà Nội là khách sạn Quốc tế đầu tiên tại Hà Nội với 218 phòng nghỉ tiện nghi, hiện đại và sang trọng. Đặc biệt, sở hữu vị trí trung tâm bên Hồ Giảng Võ thanh bình, kết nối thuận tiện với các văn phòng chính phủ, đại sứ quán, khu thương mại sầm suất, nhà hàng,… Khách sạn là điểm dừng chân lý tưởng cho du khách trong và ngoài nước mỗi khi có chuyến công tác hay du lịch cùng bạn bè và người thân. Bên cạnh đó, Khách sạn Hà Nội nổi tiếng là địa chỉ hàng đầu về ẩm thực Trung Hoa cùng các dịch vụ giải trí phong phú, hy vọng sẽ đem lại cho Quý khách những trải nghiệm thú vị và hài lòng nhất.",
+    "description": "Khách sạn Hà Nội là khách sạn Quốc tế đầu tiên tại Hà Nội với 218 phòng nghỉ tiện nghi, hiện đại và sang trọng. Đặc biệt, sở hữu vị trí trung tâm bên Hồ Giảng Võ thanh bình, kết nối thuận tiện với các văn phòng chính phủ, đại sứ quán, khu thương mại sầm suất. Khách sạn Hà Nội nổi tiếng là địa chỉ hàng đầu về ẩm thực Trung Hoa cùng các dịch vụ giải trí phong phú.",
     "address": "D8 P. Giảng Võ, Giảng Võ, Ba Đình, Hà Nội 10000, Việt Nam",
     "city": "Hà Nội",
     "country": "Vietnam",
@@ -46,16 +48,18 @@
     "longitude": 105.8215235,
     "stars": 4,
     "rating": 4.2,
-    "amenities": ["wifi", "pool", "beach", "restaurant"],
+    "amenities": ["wifi", "pool", "restaurant", "parking", "laundry"],
     "images": [
       "https://hanoihotel.com.vn/wp-content/uploads/2024/11/DSC_0514-1-scaled.webp",
       "https://hanoihotel.com.vn/wp-content/uploads/2024/11/Hanoi-Hotel-overview-1024x1024.jpg",
       "https://hanoihotel.com.vn/wp-content/uploads/2026/02/night-bar-web-768x1024.jpg"
     ],
     "contactEmail": "sales@hanoihotel.com.vn",
+    "contactPhone": "024.38.452.270",
     "rooms": [
       {
         "name": "Ocean View Room",
+        "description": "Phòng Standard view hồ Giảng Võ, rộng 25m2. Giường đôi Queen, TV LED, bàn làm việc, minibar. Bao gồm buffet sáng tại nhà hàng.",
         "type": "standard",
         "price": 120,
         "maxGuests": 2,
@@ -63,10 +67,182 @@
       },
       {
         "name": "Beach Villa",
+        "description": "Villa cao cấp 80m2 với phòng khách rộng, bếp đầy đủ tiện nghi, sân vườn riêng. Phù hợp gia đình lớn hoặc nhóm bạn, tối đa 6 người.",
         "type": "villa",
         "price": 500,
         "maxGuests": 6,
         "amenities": ["wifi", "private-pool", "kitchen", "beach-access"]
+      }
+    ]
+  },
+  {
+    "name": "Saigon Palace Hotel",
+    "slug": "saigon-palace-hotel",
+    "description": "Saigon Palace Hotel tọa lạc tại trung tâm Quận 1, TP.HCM, cách Nhà thờ Đức Bà và Bưu điện Trung tâm chỉ 500m. Khách sạn 5 sao với 120 phòng nghỉ sang trọng, nhà hàng buffet quốc tế tầng thượng view toàn cảnh Sài Gòn, hồ bơi vô cực, spa và fitness center hiện đại. Lựa chọn lý tưởng cho du khách muốn khám phá trung tâm thành phố.",
+    "address": "88 Nguyễn Du, Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+    "city": "Hồ Chí Minh",
+    "country": "Vietnam",
+    "latitude": 10.7744498, 
+    "longitude": 106.701102,
+    "stars": 5,
+    "rating": 0,
+    "amenities": ["wifi", "pool", "gym", "spa", "restaurant", "bar", "parking", "airport-shuttle"],
+    "images": [
+      "https://www.palacesaigon.com/wp-content/uploads/sites/27/2016/06/2024-palace-hotel-saigon-4.jpg",
+      "https://www.palacesaigon.com/wp-content/uploads/sites/27/2016/06/2024-t11-home-palace-hotel-sai-gon.jpg",
+      "https://www.palacesaigon.com/wp-content/uploads/sites/27/2016/06/2025-t7-palace-web-9-340x255.jpg",
+      "https://www.palacesaigon.com/wp-content/uploads/sites/27/2016/06/2025-t7-palace-web-11-340x255.jpg"
+    ],
+    "contactEmail": "info@saigonpalace.vn",
+    "contactPhone": "028.3822.8888",
+    "rooms": [
+      {
+        "name": "Standard Room",
+        "description": "Phòng Standard 25m2 nội thất hiện đại, giường đôi Queen, cửa sổ lớn nhìn ra phố đi bộ Nguyễn Huệ. TV 50 inch, minibar, két sắt điện tử.",
+        "type": "standard",
+        "price": 100,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "minibar", "safe"]
+      },
+      {
+        "name": "Deluxe City View",
+        "description": "Phòng Deluxe 35m2 view thành phố tuyệt đẹp từ tầng cao, ban công riêng. Giường King, bồn tắm đứng và bồn ngâm, minibar premium.",
+        "type": "deluxe",
+        "price": 180,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "minibar", "balcony", "bathtub"]
+      },
+      {
+        "name": "Presidential Suite",
+        "description": "Suite tổng thống 75m2 với phòng khách, phòng ăn riêng và ban công view Nhà thờ Đức Bà. Nội thất gỗ cao cấp, bồn tắm jacuzzi, minibar miễn phí, butler service 24/7.",
+        "type": "suite",
+        "price": 450,
+        "maxGuests": 4,
+        "amenities": ["wifi", "tv", "minibar", "jacuzzi", "balcony", "butler-service"]
+      }
+    ]
+  },
+  {
+    "name": "Nha Trang Beach Resort",
+    "slug": "nha-trang-beach-resort",
+    "description": "Nha Trang Beach Resort nằm ngay trên bãi biển Trần Phú, sở hữu 200m mặt tiền biển riêng tư. Resort 4 sao với kiến trúc nhiệt đới, bao quanh bởi vườn dừa xanh mát. 3 hồ bơi ngoài trời, nhà hàng hải sản, bar bãi biển, trung tâm lặn biển và tour đảo. Điểm nghỉ dưỡng hoàn hảo cho gia đình và cặp đôi.",
+    "address": "96 Trần Phú, Lộc Thọ, Nha Trang, Khánh Hòa",
+    "city": "Nha Trang",
+    "country": "Vietnam",
+    "latitude": 12.24977,
+    "longitude": 109.1109904,
+    "stars": 4,
+    "rating": 0,
+    "amenities": ["wifi", "pool", "beach", "restaurant", "bar", "diving-center", "spa", "kids-club"],
+    "images": [
+      "https://statics.vinpearl.com/styles/600x450/public/2024_10/VPCBNT%20Pool17_1729770655.jpg?itok=G2cTqB6M",
+      "https://statics.vinpearl.com/styles/368x540/public/2023_03/vinpearl-condotel-beachfront-nha-trang-Lagoon_1680212331.jpg.webp?itok=_5OJ2WjW",
+      "https://statics.vinpearl.com/styles/1140x320/public/2025_10/Spa_Facial_1759381524.jpg.webp?itok=uQGKEi-F"
+    ],
+    "contactEmail": "booking@nhatrangbeach.vn",
+    "contactPhone": "0258.352.6666",
+    "rooms": [
+      {
+        "name": "Garden View Room",
+        "description": "Phòng Standard 28m2 view vườn nhiệt đới, giường đôi hoặc 2 giường đơn. Ban công riêng, vòi sen mưa, minibar. Bao gồm buffet sáng.",
+        "type": "standard",
+        "price": 90,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "minibar", "balcony"]
+      },
+      {
+        "name": "Ocean Front Deluxe",
+        "description": "Phòng Deluxe 40m2 mặt tiền biển với ban công rộng nhìn thẳng ra vịnh Nha Trang. Giường King, bồn tắm đứng + bồn ngâm, ghế sofa thư giãn.",
+        "type": "deluxe",
+        "price": 160,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "minibar", "balcony", "ocean-view", "bathtub"]
+      },
+      {
+        "name": "Beachfront Villa",
+        "description": "Villa riêng tư 100m2 ngay sát biển với hồ bơi riêng, sân vườn, phòng khách rộng. Bếp đầy đủ tiện nghi, 2 phòng ngủ. Phù hợp gia đình lớn muốn không gian riêng tư.",
+        "type": "villa",
+        "price": 380,
+        "maxGuests": 6,
+        "amenities": ["wifi", "private-pool", "kitchen", "beach-access", "garden"]
+      }
+    ]
+  },
+  {
+    "name": "Dalat Pine Hill Hotel",
+    "slug": "dalat-pine-hill-hotel",
+    "description": "Dalat Pine Hill Hotel ẩn mình giữa đồi thông xanh mát, cách trung tâm TP Đà Lạt 3km. Khách sạn 3 sao với kiến trúc Pháp cổ điển, 40 phòng nghỉ ấm cúng với lò sưởi và view đồi thông. Nhà hàng phục vụ ẩm thực Đà Lạt đặc sắc, quán cà phê sân vườn, khu BBQ ngoài trời. Lý tưởng cho kỳ nghỉ yên bình tránh xa phố thị.",
+    "address": "15 Hùng Vương, Phường 10, TP. Đà Lạt, Lâm Đồng",
+    "city": "Đà Lạt",
+    "country": "Vietnam",
+    "latitude": 11.9354874, 
+    "longitude": 108.4384545,
+    "stars": 3,
+    "rating": 0,
+    "amenities": ["wifi", "restaurant", "parking", "garden", "fireplace", "bbq"],
+    "images": [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVJd07w85-MHuxP9M1gZX93s8yzxXc_W3e4Q&s",
+      "https://pinehillhoteldalat.com.vn/wp-content/uploads/2026/02/DON-KO-CO-CUA-1-2.jpg",
+      "https://tophomestay.vn/wp-content/uploads/9fba44d71932a89fa06a21703c0bfbed/700/2020/04/01/pine_hill_homestay_tophomestay_26_1585736042911.jpg",
+      "https://pinehillhoteldalat.com.vn/wp-content/uploads/2026/02/DON-CUA-SO-NOI-BO-2-1.jpg",
+      "https://pinehillhoteldalat.com.vn/wp-content/uploads/2026/02/DON-CO-CUA-SO-1-1.jpg"
+    ],
+    "contactEmail": "hello@dalatpinehill.vn",
+    "contactPhone": "0263.382.1111",
+    "rooms": [
+      {
+        "name": "Pine View Standard",
+        "description": "Phòng Standard 22m2 ấm cúng với cửa sổ lớn nhìn ra đồi thông. Giường đôi, chăn lông vũ, lò sưởi điện, bàn trà nhỏ. Phong cách Pháp cổ điển ấm áp.",
+        "type": "standard",
+        "price": 65,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "fireplace", "tea-set"]
+      },
+      {
+        "name": "Hill View Deluxe",
+        "description": "Phòng Deluxe 32m2 view toàn cảnh đồi thông và thung lũng. Ban công riêng với bàn ghế thư giãn, bồn tắm ngâm nước nóng, lò sưởi gỗ thật. Nội thất gỗ thông tự nhiên.",
+        "type": "deluxe",
+        "price": 110,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "fireplace", "balcony", "bathtub"]
+      }
+    ]
+  },
+  {
+    "name": "Hue Imperial Hotel",
+    "slug": "hue-imperial-hotel",
+    "description": "Hue Imperial Hotel tọa lạc bên bờ sông Hương thơ mộng, cách Đại Nội Huế chỉ 1km. Khách sạn 4 sao với kiến trúc kết hợp truyền thống cung đình Huế và hiện đại, 80 phòng nghỉ. Nhà hàng cung đình phục vụ ẩm thực Hoàng gia Huế, spa thảo dược truyền thống, tour xe đạp khám phá Cố đô. Trải nghiệm văn hóa Huế đích thực.",
+    "address": "27 Lê Lợi, Phú Hội, TP. Huế, Thừa Thiên Huế",
+    "city": "Huế",
+    "country": "Vietnam",
+    "latitude": 16.4660543, 
+    "longitude": 107.5891594,
+    "stars": 4,
+    "rating": 0,
+    "amenities": ["wifi", "pool", "spa", "restaurant", "bar", "bicycle-rental", "laundry"],
+    "images": [
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/742542732.jpg?k=8856dfdf80429c112bcd4cf8a240133da1440982a214cef1e9e96d453eff50f9&o=",
+      "https://cf.bstatic.com/xdata/images/hotel/max500/742314382.jpg?k=34340d4ebe877d58a9c32423f446e552d74513d544c47f01a10de9d3308c732a&o=",
+      "https://cf.bstatic.com/xdata/images/hotel/max300/742321270.jpg?k=7a0e772330df6332ed9131554b04013cbdb445bcd5f9c2aaa7e98756ae2fb04e&o="
+    ],
+    "contactEmail": "reservation@hueimperial.vn",
+    "contactPhone": "0234.383.5555",
+    "rooms": [
+      {
+        "name": "River View Deluxe",
+        "description": "Phòng Deluxe 35m2 view sông Hương, trang trí theo phong cách cung đình Huế tinh tế. Giường King, ban công riêng với ghế mây. Bao gồm trà cung đình và buffet sáng.",
+        "type": "deluxe",
+        "price": 140,
+        "maxGuests": 2,
+        "amenities": ["wifi", "tv", "minibar", "balcony", "river-view"]
+      },
+      {
+        "name": "Imperial Suite",
+        "description": "Suite Hoàng gia 60m2 lấy cảm hứng từ cung điện Huế. Phòng khách riêng, ban công panorama view sông Hương và Đại Nội. Bồn tắm jacuzzi, trà cung đình, minibar miễn phí, butler service.",
+        "type": "suite",
+        "price": 320,
+        "maxGuests": 4,
+        "amenities": ["wifi", "tv", "minibar", "jacuzzi", "balcony", "butler-service", "river-view"]
       }
     ]
   }

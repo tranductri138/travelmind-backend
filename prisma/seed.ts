@@ -22,10 +22,13 @@ interface UserSeed {
   password: string;
   name: string;
   role: string;
+  phone?: string;
+  avatar?: string;
 }
 
 interface RoomSeed {
   name: string;
+  description?: string;
   type: string;
   price: number;
   maxGuests: number;
@@ -90,6 +93,8 @@ async function seedUsers(users: UserSeed[]) {
         password: hashed,
         name: u.name,
         role: u.role as Role,
+        phone: u.phone,
+        avatar: u.avatar,
       },
     });
     created[u.email] = { id: user.id, email: user.email };
@@ -101,6 +106,7 @@ async function seedUsers(users: UserSeed[]) {
 async function seedHotels(hotels: HotelSeed[]) {
   const hotelMap: Record<string, string> = {};
   const roomMap: Record<string, string> = {}; // "hotelSlug:roomType" -> roomId
+  const roomPriceMap: Record<string, number> = {}; // roomId -> base price
 
   for (const h of hotels) {
     const { rooms, ...hotelData } = h;
@@ -119,17 +125,19 @@ async function seedHotels(hotels: HotelSeed[]) {
         });
         if (existing) {
           roomMap[`${h.slug}:${r.type}`] = existing.id;
+          roomPriceMap[existing.id] = r.price;
         } else {
           const room = await prisma.room.create({
             data: { ...r, hotelId: hotel.id },
           });
           roomMap[`${h.slug}:${r.type}`] = room.id;
+          roomPriceMap[room.id] = r.price;
         }
       }
     }
   }
 
-  return { hotelMap, roomMap };
+  return { hotelMap, roomMap, roomPriceMap };
 }
 
 async function seedReviews(
@@ -148,18 +156,51 @@ async function seedReviews(
   await prisma.review.createMany({ skipDuplicates: true, data });
 }
 
-async function seedRoomAvailability(roomMap: Record<string, string>) {
-  const roomIds = Object.values(roomMap);
+async function updateHotelRatings(hotelMap: Record<string, string>) {
+  for (const [slug, hotelId] of Object.entries(hotelMap)) {
+    const result = await prisma.review.aggregate({
+      where: { hotelId },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+    await prisma.hotel.update({
+      where: { id: hotelId },
+      data: {
+        rating: result._avg.rating || 0,
+        reviewCount: result._count.rating,
+      },
+    });
+  }
+}
+
+async function seedRoomAvailability(
+  roomMap: Record<string, string>,
+  roomPriceMap: Record<string, number>,
+) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
-  const data: { roomId: string; date: Date; isAvailable: boolean }[] = [];
+  const data: {
+    roomId: string;
+    date: Date;
+    isAvailable: boolean;
+    price: number;
+  }[] = [];
 
-  for (const roomId of roomIds) {
+  for (const roomId of Object.values(roomMap)) {
+    const basePrice = roomPriceMap[roomId] || 0;
+
     for (let i = 0; i < 60; i++) {
       const date = new Date(today);
-      date.setDate(date.getDate() + i);
-      data.push({ roomId, date, isAvailable: true });
+      date.setUTCDate(date.getUTCDate() + i);
+
+      const dayOfWeek = date.getUTCDay(); // 0=Sun, 6=Sat
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const price = isWeekend
+        ? Math.round(basePrice * 1.2 * 100) / 100
+        : basePrice;
+
+      data.push({ roomId, date, isAvailable: true, price });
     }
   }
 
@@ -250,19 +291,19 @@ async function main() {
   const bookings = loadJson<BookingSeed[]>('bookings.json');
 
   const userMap = await seedUsers(users);
-  const { hotelMap, roomMap } = await seedHotels(hotels);
+  const { hotelMap, roomMap, roomPriceMap } = await seedHotels(hotels);
   await seedReviews(reviews, userMap, hotelMap);
-  const availabilityCount = await seedRoomAvailability(roomMap);
+  await updateHotelRatings(hotelMap);
+  const availabilityCount = await seedRoomAvailability(roomMap, roomPriceMap);
   const { bookingCount, paymentCount } = await seedBookings(
     bookings,
     userMap,
     roomMap,
   );
-
   console.log('Seed data created:', {
-    users: Object.keys(userMap),
-    hotels: Object.keys(hotelMap),
-    rooms: Object.keys(roomMap),
+    users: Object.keys(userMap).length,
+    hotels: Object.keys(hotelMap).length,
+    rooms: Object.keys(roomMap).length,
     reviews: reviews.length,
     roomAvailability: availabilityCount,
     bookings: bookingCount,
