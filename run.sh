@@ -23,29 +23,29 @@ fi
 echo "Building image: ${IMAGE_NAME}..."
 docker build -t "$IMAGE_NAME" -f "$DOCKERFILE" .
 
-# ── Migrate ────────────────────────────────────────────────
-echo "Running prisma db push..."
-docker run --rm \
-  --env-file "$ENV_FILE" \
-  --network "$NETWORK" \
-  "$IMAGE_NAME" \
-  npx prisma db push --accept-data-loss
+# # ── Migrate ────────────────────────────────────────────────
+# echo "Running prisma db push..."
+# docker run --rm \
+#   --env-file "$ENV_FILE" \
+#   --network "$NETWORK" \
+#   "$IMAGE_NAME" \
+#   npx prisma db push --accept-data-loss
 
-# ── Seed ───────────────────────────────────────────────────
-echo "Running seed..."
-docker run --rm \
-  --env-file "$ENV_FILE" \
-  --network "$NETWORK" \
-  "$IMAGE_NAME" \
-  npx tsx prisma/seed.ts
+# # ── Seed ───────────────────────────────────────────────────
+# echo "Running seed..."
+# docker run --rm \
+#   --env-file "$ENV_FILE" \
+#   --network "$NETWORK" \
+#   "$IMAGE_NAME" \
+#   npx tsx prisma/seed.ts
 
-# ── Sync AI ────────────────────────────────────────────────
-echo "Running sync-ai..."
-docker run --rm \
-  --env-file "$ENV_FILE" \
-  --network "$NETWORK" \
-  "$IMAGE_NAME" \
-  npx tsx prisma/sync-ai.ts
+# # ── Sync AI ────────────────────────────────────────────────
+# echo "Running sync-ai..."
+# docker run --rm \
+#   --env-file "$ENV_FILE" \
+#   --network "$NETWORK" \
+#   "$IMAGE_NAME" \
+#   npx tsx prisma/sync-ai.ts
 
 # ── Run ────────────────────────────────────────────────────
 echo "Starting container: ${CONTAINER_NAME}..."
