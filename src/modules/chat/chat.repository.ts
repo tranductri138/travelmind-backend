@@ -54,9 +54,16 @@ export class ChatRepository {
     role: MessageRole,
     content: string,
   ): Promise<ChatMessage> {
-    return this.prisma.chatMessage.create({
-      data: { conversationId, role, content },
-    });
+    const [message] = await this.prisma.$transaction([
+      this.prisma.chatMessage.create({
+        data: { conversationId, role, content },
+      }),
+      this.prisma.chatConversation.update({
+        where: { id: conversationId },
+        data: { updatedAt: new Date() },
+      }),
+    ]);
+    return message;
   }
 
   async getRecentMessages(
