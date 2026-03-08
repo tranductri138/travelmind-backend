@@ -53,6 +53,7 @@ docker run -d \
   --name "$CONTAINER_NAME" \
   --env-file "$ENV_FILE" \
   --network "$NETWORK" \
+  --restart unless-stopped \
   -p 3000:3000 \
   "$IMAGE_NAME"
 
