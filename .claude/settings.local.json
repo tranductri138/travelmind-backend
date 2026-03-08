@@ -35,7 +35,8 @@
       "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Yes, reset it\" npx prisma:*)",
       "Bash(chmod +x:*)",
       "Bash(docker build:*)",
-      "Bash(docker run:*)"
+      "Bash(docker run:*)",
+      "Bash(git:*)"
     ]
   }
 }
