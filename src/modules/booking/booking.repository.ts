@@ -63,4 +63,5 @@ export class BookingRepository {
   async delete(id: string): Promise<Booking> {
     return this.prisma.booking.delete({ where: { id } });
   }
+
 }

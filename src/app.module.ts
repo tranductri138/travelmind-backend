@@ -15,6 +15,7 @@ import { NotificationModule } from './modules/notification/notification.module.j
 import { CrawlerModule } from './modules/crawler/crawler.module.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { UploadModule } from './modules/upload/upload.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -41,6 +42,7 @@ import { join } from 'path';
     CrawlerModule,
     ChatModule,
     UploadModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
