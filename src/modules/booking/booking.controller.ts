@@ -14,6 +14,7 @@ import { CreateBookingDto } from './dto/create-booking.dto.js';
 import { BookingFilterDto } from './dto/booking-filter.dto.js';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator.js';
 import { ApiPaginated } from '../../shared/decorators/api-paginated.decorator.js';
+import { Auth } from '../../shared/decorators/auth.decorator.js';
 
 @ApiTags('Bookings')
 @ApiBearerAuth()
@@ -28,6 +29,14 @@ export class BookingController {
     @Body() dto: CreateBookingDto,
   ) {
     return this.bookingService.create(userId, dto);
+  }
+
+  @Get('admin')
+  @Auth('ADMIN')
+  @ApiOperation({ summary: 'Get all bookings (admin)' })
+  @ApiPaginated()
+  async findAllAdmin(@Query() dto: BookingFilterDto) {
+    return this.bookingService.findAll(dto);
   }
 
   @Get()
