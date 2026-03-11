@@ -70,9 +70,7 @@ export class BookingService {
     return this.bookingRepository.findByUser(userId, dto);
   }
 
-  async findAll(
-    dto: BookingFilterDto,
-  ): Promise<PaginatedResponseDto<Booking>> {
+  async findAll(dto: BookingFilterDto): Promise<PaginatedResponseDto<Booking>> {
     return this.bookingRepository.findAll(dto);
   }
 

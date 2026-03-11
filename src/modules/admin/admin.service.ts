@@ -14,19 +14,24 @@ export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getDashboardStats(): Promise<DashboardStats> {
-    const [totalHotels, totalBookings, totalUsers, totalReviews, revenueResult] =
-      await Promise.all([
-        this.prisma.hotel.count({ where: { isActive: true } }),
-        this.prisma.booking.count(),
-        this.prisma.user.count(),
-        this.prisma.review.count(),
-        this.prisma.booking.aggregate({
-          _sum: { totalPrice: true },
-          where: {
-            status: { in: ['CONFIRMED', 'COMPLETED'] },
-          },
-        }),
-      ]);
+    const [
+      totalHotels,
+      totalBookings,
+      totalUsers,
+      totalReviews,
+      revenueResult,
+    ] = await Promise.all([
+      this.prisma.hotel.count({ where: { isActive: true } }),
+      this.prisma.booking.count(),
+      this.prisma.user.count(),
+      this.prisma.review.count(),
+      this.prisma.booking.aggregate({
+        _sum: { totalPrice: true },
+        where: {
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+        },
+      }),
+    ]);
 
     return {
       totalHotels,

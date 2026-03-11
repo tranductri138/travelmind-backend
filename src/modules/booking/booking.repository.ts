@@ -36,16 +36,18 @@ export class BookingRepository {
     return new PaginatedResponseDto(bookings, total, dto.page, dto.limit);
   }
 
-  async findAll(
-    dto: BookingFilterDto,
-  ): Promise<PaginatedResponseDto<Booking>> {
+  async findAll(dto: BookingFilterDto): Promise<PaginatedResponseDto<Booking>> {
     const where: Prisma.BookingWhereInput = {};
     if (dto.status) where.status = dto.status as BookingStatus;
 
     const [bookings, total] = await Promise.all([
       this.prisma.booking.findMany({
         where,
-        include: { room: { include: { hotel: true } }, payment: true, user: true },
+        include: {
+          room: { include: { hotel: true } },
+          payment: true,
+          user: true,
+        },
         orderBy: { createdAt: 'desc' },
         skip: dto.skip,
         take: dto.limit,
@@ -63,5 +65,4 @@ export class BookingRepository {
   async delete(id: string): Promise<Booking> {
     return this.prisma.booking.delete({ where: { id } });
   }
-
 }
